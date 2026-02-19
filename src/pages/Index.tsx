@@ -44,6 +44,8 @@ const Index = () => {
         {showStories && (
           <TimelineStories
             milestones={MILESTONES}
+            coupleNames={COUPLE_NAMES}
+            coupleDate={COUPLE_DATE}
             onClose={() => setShowStories(false)}
           />
         )}
