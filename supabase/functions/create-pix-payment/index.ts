@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const FLASHPAY_URL = "https://api.appflashpay.com/v1/payments";
+const FLASHPAY_URL = "https://api.appflashpay.com/api/v1/payments";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
