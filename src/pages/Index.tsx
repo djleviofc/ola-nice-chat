@@ -1,13 +1,17 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Heart, Music, Star, Sparkles } from "lucide-react";
+import { Heart, Music, Star, Sparkles, Camera } from "lucide-react";
 import TimeCounter from "@/components/TimeCounter";
 import FloatingHearts from "@/components/FloatingHearts";
+import PhotoCarousel from "@/components/PhotoCarousel";
 import heroBg from "@/assets/hero-bg.jpg";
 import coupleHands from "@/assets/couple-hands.jpg";
 import coupleDance from "@/assets/couple-dance.jpg";
 import romanticBg from "@/assets/romantic-bg.jpg";
 import couplePhoto from "@/assets/couple-photo.jpg";
+import story1 from "@/assets/story-1.jpg";
+import story2 from "@/assets/story-2.jpg";
+import story3 from "@/assets/story-3.jpg";
 
 const COUPLE_DATE = new Date("2022-07-22T00:00:00");
 const COUPLE_NAMES = "Maria & José";
@@ -18,6 +22,11 @@ const MILESTONES = [
   { emoji: "💋", title: "Primeiro beijo", date: "25 de julho de 2022" },
   { emoji: "🏠", title: "Morando juntos", date: "15 de janeiro de 2023" },
   { emoji: "✈️", title: "Primeira viagem", date: "10 de março de 2023" },
+];
+const STORY_PHOTOS = [
+  { src: story1, alt: "Nosso momento 1" },
+  { src: story2, alt: "Nosso momento 2" },
+  { src: story3, alt: "Nosso momento 3" },
 ];
 
 function ParallaxImage({
@@ -193,7 +202,24 @@ const Index = () => {
         </div>
       </ParallaxImage>
 
-      {/* ── SLIDE 5: Love Message over roses ── */}
+      {/* ── SLIDE 5: Photo Gallery Stories ── */}
+      <ParallaxImage src={couplePhoto} alt="Nossas fotos" speed={0.15} overlay={0.7}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <Camera className="w-8 h-8 text-primary mx-auto mb-3" />
+          <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic mb-8">
+            Nossos Momentos
+          </h2>
+          <PhotoCarousel photos={STORY_PHOTOS} />
+        </motion.div>
+      </ParallaxImage>
+
+      {/* ── SLIDE 6: Love Message over roses ── */}
       <ParallaxImage src={romanticBg} alt="Rosas e velas" speed={0.2} overlay={0.6}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
