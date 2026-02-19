@@ -261,7 +261,7 @@ const Criar = () => {
       // Create payment preference
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke("create-pix-payment", {
         body: {
-          amount: 2990,
+          amount: 1499,
           description: `Momentos de Amor - ${coupleData.titulo_pagina}`,
           customer: {
             name: coupleData.nome_cliente.trim(),
@@ -303,7 +303,7 @@ const Criar = () => {
           };
         }),
         payment_preference_id: paymentData.preference_id,
-        amount: 2990,
+        amount: 1499,
       } as any);
 
       if (insertError) {
@@ -640,6 +640,10 @@ const Criar = () => {
                     <SummaryRow label="Mensagem" value={`${mensagem.length} caracteres`} />
                     <SummaryRow label="Momentos" value={`${journeyEvents.filter((j) => j.title.trim()).length} momento${journeyEvents.filter((j) => j.title.trim()).length !== 1 ? "s" : ""}`} />
                     <SummaryRow label="Música" value={musicaUrl ? "✓ Adicionada" : "Sem música"} />
+                    <div className="flex items-center justify-between pt-2 mt-1">
+                      <span className="font-body font-bold text-foreground text-sm">Total</span>
+                      <span className="font-body font-bold text-primary text-base">R$ 14,99</span>
+                    </div>
                   </div>
                 </div>
               </div>
