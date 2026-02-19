@@ -21,7 +21,7 @@ interface PageData {
   journey_events: Array<{ emoji: string; title: string; date: string; description: string; photo?: string }>;
 }
 
-type StoryPhase = "none" | "wrapped" | "timeline";
+type StoryPhase = "none" | "countdown" | "wrapped" | "timeline";
 
 const PageView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -30,6 +30,7 @@ const PageView = () => {
   const [notFound, setNotFound] = useState(false);
   const [storyPhase, setStoryPhase] = useState<StoryPhase>("none");
   const [hasSeenTimeline, setHasSeenTimeline] = useState(false);
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     const fetchPage = async () => {
@@ -49,6 +50,16 @@ const PageView = () => {
     };
     fetchPage();
   }, [slug]);
+
+  useEffect(() => {
+    if (storyPhase !== "countdown") return;
+    if (countdown <= 0) {
+      setStoryPhase("wrapped");
+      return;
+    }
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [storyPhase, countdown]);
 
   if (loading) {
     return (
@@ -76,7 +87,8 @@ const PageView = () => {
   }));
 
   const handlePlayTriggered = () => {
-    setTimeout(() => setStoryPhase("wrapped"), 5000);
+    setCountdown(5);
+    setStoryPhase("countdown");
   };
 
   return (
@@ -84,6 +96,36 @@ const PageView = () => {
       <FloatingHearts />
 
       <AnimatePresence>
+        {storyPhase === "countdown" && (
+          <motion.div
+            key="countdown"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-wrapped flex flex-col items-center justify-center"
+          >
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={countdown}
+                initial={{ scale: 2, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.3, opacity: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="text-[10rem] font-extrabold font-body text-spotify leading-none glow-spotify"
+              >
+                {countdown}
+              </motion.span>
+            </AnimatePresence>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-foreground/50 font-body text-sm uppercase tracking-[0.3em] mt-8"
+            >
+              Preparando seu Wrapped…
+            </motion.p>
+          </motion.div>
+        )}
         {storyPhase === "wrapped" && (
           <WrappedStories
             coupleNames={coupleNames}

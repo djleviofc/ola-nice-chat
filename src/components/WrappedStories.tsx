@@ -168,10 +168,10 @@ const BigNumberSlide = ({ totalDays }: { totalDays: number }) => (
 );
 
 /* ── Slide 3: Animated Counter (Odometer) ── */
-const OdometerSlide = ({ totalDays }: { totalDays: number }) => {
+const OdometerSlide = ({ totalMinutes }: { totalMinutes: number }) => {
   const [counting, setCounting] = useState(true);
   const [displayNum, setDisplayNum] = useState(0);
-  const target = totalDays;
+  const target = totalMinutes;
 
   useEffect(() => {
     if (!counting) return;
@@ -206,10 +206,10 @@ const OdometerSlide = ({ totalDays }: { totalDays: number }) => {
         transition={{ delay: 0.2 }}
       className="text-spotify font-body text-sm uppercase tracking-[0.3em] mb-8"
       >
-        Dias juntos
+        Minutos juntos
       </motion.p>
 
-      <div className="flex items-center justify-center overflow-hidden">
+      <div className="flex items-center justify-center overflow-hidden flex-wrap gap-1">
         {digits.map((d, i) => (
           <OdometerDigit key={`${i}-${d}`} digit={d} delay={0.3 + i * 0.05} />
         ))}
@@ -296,7 +296,7 @@ const WrappedStories = ({ coupleNames, coupleDate, onClose }: WrappedStoriesProp
   const now = new Date();
   const diffMs = now.getTime() - coupleDate.getTime();
   const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const totalMinutes = Math.floor(diffMs / (1000 * 60));
 
   const totalSlides = 4;
 
@@ -350,7 +350,7 @@ const WrappedStories = ({ coupleNames, coupleDate, onClose }: WrappedStoriesProp
   const slides = [
     <CoverSlide coupleNames={coupleNames} />,
     <BigNumberSlide totalDays={totalDays} />,
-    <OdometerSlide totalDays={totalDays} />,
+    <OdometerSlide totalMinutes={totalMinutes} />,
     <FinalStatSlide totalDays={totalDays} />,
   ];
 
