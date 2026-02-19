@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Heart, Pen, CreditCard, QrCode, Lightbulb, ChevronLeft, ChevronRight, Star, X, Clock, HelpCircle, Mail, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { QRCodeSVG } from "qrcode.react";
 
 const TESTIMONIALS = [
   { name: "Ana & Pedro", time: "juntos a 2 anos", message: "Ficou lindo com nossas fotos. Simples e cheio de significado.", rating: 5 },
@@ -271,6 +272,51 @@ const Index = () => {
         >
           Criar minha página
         </Link>
+      </section>
+
+      {/* QR Code Demo */}
+      <section className="py-20 px-4 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-xs mx-auto"
+        >
+          <QrCode className="w-8 h-8 text-primary mx-auto mb-3" />
+          <h2 className="text-3xl sm:text-4xl font-romantic text-foreground mb-2">Experimente</h2>
+          <p className="text-sm text-muted-foreground font-body mb-8">
+            Escaneie o QR Code ou <Link to="/demo" className="text-primary underline underline-offset-2">clique aqui</Link> para ver uma página de exemplo
+          </p>
+
+          <Link to="/demo" className="inline-block group">
+            <div className="relative inline-flex items-center justify-center p-4 bg-card border border-border rounded-3xl shadow-lg hover:shadow-xl transition-shadow glow-primary">
+              <QRCodeSVG
+                value="https://ola-nice-chat.lovable.app/demo"
+                size={180}
+                bgColor="transparent"
+                fgColor="hsl(var(--foreground))"
+                level="H"
+                imageSettings={{
+                  src: "",
+                  x: undefined,
+                  y: undefined,
+                  height: 40,
+                  width: 40,
+                  excavate: true,
+                }}
+              />
+              {/* Heart overlay no centro */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-card rounded-full p-1.5 shadow-sm border border-border">
+                  <Heart className="w-6 h-6 text-primary fill-primary" />
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground font-body mt-3 group-hover:text-primary transition-colors">
+              Aponte a câmera para escanear
+            </p>
+          </Link>
+        </motion.div>
       </section>
 
       {/* FAQ */}
