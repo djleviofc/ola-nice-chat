@@ -51,6 +51,7 @@ serve(async (req) => {
         pending: "https://ola-nice-chat.lovable.app/criar?status=pending",
       },
       auto_return: "approved",
+      notification_url: `https://ymrmbwvdwxtdnxdfraza.supabase.co/functions/v1/mp-webhook`,
       metadata: metadata || {},
     };
 
