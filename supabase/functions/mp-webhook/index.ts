@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const APP_URL = "https://ola-nice-chat.lovable.app";
-const FROM_EMAIL = "noreply@lovepages.com.br"; // Trocar pelo seu domínio no Resend
+const FROM_EMAIL = "noreply@momentodeamor.com";
 
 async function sendConfirmationEmail(
   resendKey: string,
