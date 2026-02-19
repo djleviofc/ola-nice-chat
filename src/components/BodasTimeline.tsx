@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useMemo } from "react";
 import { X } from "lucide-react";
 
@@ -174,8 +174,17 @@ const MeaningModal = ({
 };
 
 const BodasTimeline = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [selectedBoda, setSelectedBoda] = useState<BodaData | null>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "-20%"]);
+  const titleY = useTransform(scrollYProgress, [0, 0.5], ["40px", "0px"]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.25], [0, 1]);
 
   const bodasWithStatus = useMemo(() => {
     const now = new Date();
@@ -190,31 +199,57 @@ const BodasTimeline = () => {
   }, []);
 
   return (
-    <div className="w-full">
+    <div ref={containerRef} className="relative w-full overflow-hidden py-24">
+      {/* Parallax background layer */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="text-center mb-8"
+        style={{ y: bgY }}
+        className="absolute inset-0 -top-20 -bottom-20 pointer-events-none"
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-card/50 to-background" />
+        {/* Decorative parallax circles */}
+        <motion.div
+          className="absolute w-[500px] h-[500px] rounded-full border border-primary/10 -left-40 top-10"
+          style={{ y: useTransform(scrollYProgress, [0, 1], ["0px", "-60px"]) }}
+        />
+        <motion.div
+          className="absolute w-[300px] h-[300px] rounded-full border border-accent/10 -right-20 bottom-20"
+          style={{ y: useTransform(scrollYProgress, [0, 1], ["0px", "-100px"]) }}
+        />
+      </motion.div>
+
+      {/* Title with parallax */}
+      <motion.div
+        style={{ y: titleY, opacity: titleOpacity }}
+        className="text-center mb-10 relative z-10"
       >
         <p className="text-sm text-foreground/60 font-body italic mb-1">nosso tempo em</p>
         <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic">Bodas</h2>
       </motion.div>
 
+      {/* Horizontal scroll cards with staggered parallax */}
       <div
-        ref={scrollRef}
-        className="flex gap-6 overflow-x-auto pb-6 px-4 snap-x snap-mandatory"
+        className="flex gap-6 overflow-x-auto pb-6 px-4 snap-x snap-mandatory relative z-10"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {bodasWithStatus.map(({ boda, completed, daysRemaining }) => (
-          <div key={boda.year} className="snap-center flex-shrink-0">
+        {bodasWithStatus.map(({ boda, completed, daysRemaining }, i) => (
+          <motion.div
+            key={boda.year}
+            className="snap-center flex-shrink-0"
+            style={{
+              y: useTransform(
+                scrollYProgress,
+                [0, 0.5, 1],
+                [`${30 + (i % 3) * 15}px`, "0px", `${-10 - (i % 3) * 10}px`]
+              ),
+            }}
+          >
             <BodaCard
               boda={boda}
               completed={completed}
               daysInfo={daysRemaining > 0 ? daysRemaining.toLocaleString("pt-BR") : "0"}
               onOpenMeaning={() => setSelectedBoda(boda)}
             />
-          </div>
+          </motion.div>
         ))}
       </div>
 
