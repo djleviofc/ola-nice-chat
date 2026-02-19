@@ -19,7 +19,7 @@ const TIPS = [
 ];
 
 const FAQS = [
-  { q: "O que é o Tempo Juntos?", a: "É uma plataforma que cria páginas românticas personalizadas com suas fotos, mensagens e músicas. Você recebe um QR Code exclusivo para compartilhar com quem ama." },
+  { q: "O que é o Momentos de Amor?", a: "É uma plataforma que cria páginas românticas personalizadas com suas fotos, mensagens e músicas. Você recebe um QR Code exclusivo para compartilhar com quem ama." },
   { q: "A página é permanente?", a: "Sim! Sua página fica disponível para sempre, sem custos adicionais." },
   { q: "Como faço para criar minha página?", a: "É simples: personalize com suas fotos e mensagens, finalize o pagamento via PIX e receba seu QR Code na hora." },
   { q: "Consigo editar a página depois de criada?", a: "No momento a edição não está disponível, mas estamos trabalhando nessa funcionalidade." },
@@ -96,7 +96,7 @@ const Index = () => {
         </motion.p>
 
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl sm:text-7xl font-romantic text-foreground leading-tight mb-2">
-          Tempo Juntos
+          Momentos de Amor
         </motion.h1>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mb-6">
@@ -268,7 +268,7 @@ const Index = () => {
       <footer className="border-t border-border py-16 px-4">
         <div className="max-w-lg mx-auto text-center">
           <Heart className="w-8 h-8 text-primary fill-primary mx-auto mb-3" />
-          <h3 className="text-3xl font-romantic text-foreground mb-3">Tempo Juntos</h3>
+          <h3 className="text-3xl font-romantic text-foreground mb-3">Momentos de Amor</h3>
           <p className="text-xs text-muted-foreground font-body mb-8">
             Um presente que celebra o tempo<br />ao lado de quem você ama.
           </p>
@@ -276,7 +276,7 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left sm:text-center mb-8">
             <div>
               <h4 className="text-xs font-body font-bold text-foreground uppercase mb-2">Contato</h4>
-              <p className="text-xs text-muted-foreground font-body">suporte@tempojuntos.com</p>
+              <p className="text-xs text-muted-foreground font-body">suporte@momentosdeamor.com</p>
             </div>
             <div>
               <h4 className="text-xs font-body font-bold text-foreground uppercase mb-2">Links</h4>
@@ -289,7 +289,7 @@ const Index = () => {
           </div>
 
           <p className="text-xs text-muted-foreground/50 font-body">
-            Tempo Juntos © 2025. Todos os direitos reservados.
+            Momentos de Amor © 2025. Todos os direitos reservados.
           </p>
         </div>
       </footer>

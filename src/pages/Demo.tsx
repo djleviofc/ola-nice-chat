@@ -89,7 +89,7 @@ const Index = () => {
           transition={{ delay: 0.4, duration: 0.7 }}
           className="text-6xl sm:text-8xl font-romantic text-gradient-romantic leading-tight text-center"
         >
-          Tempo Juntos
+          Momentos de Amor
         </motion.h1>
 
         <motion.p
@@ -199,7 +199,7 @@ const Index = () => {
           </div>
 
           <p className="mt-16 text-xs text-foreground/30 font-body">
-            Feito com <Heart className="w-3 h-3 inline text-primary fill-primary" /> Tempo Juntos
+            Feito com <Heart className="w-3 h-3 inline text-primary fill-primary" /> Momentos de Amor
           </p>
         </motion.div>
       </section>
