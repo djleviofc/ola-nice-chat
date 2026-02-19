@@ -102,27 +102,75 @@ const PageView = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-wrapped flex flex-col items-center justify-center"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+            style={{ background: "radial-gradient(ellipse at center, hsl(var(--primary)/0.18) 0%, hsl(var(--background)) 70%)" }}
           >
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={countdown}
-                initial={{ scale: 2, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.3, opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="text-[10rem] font-extrabold font-body text-spotify leading-none glow-spotify"
+            {/* Floating background hearts */}
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute text-primary/20"
+                style={{ left: `${10 + i * 12}%`, top: `${20 + (i % 3) * 25}%` }}
+                animate={{ y: [0, -20, 0], scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 2.5 + i * 0.3, repeat: Infinity, delay: i * 0.4 }}
               >
-                {countdown}
-              </motion.span>
-            </AnimatePresence>
+                <Heart className="fill-primary" style={{ width: 20 + i * 6, height: 20 + i * 6 }} />
+              </motion.div>
+            ))}
+
+            {/* Pulsing ring behind number */}
+            <div className="relative flex items-center justify-center mb-8">
+              <motion.div
+                className="absolute rounded-full border-2 border-primary/30"
+                animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                style={{ width: 200, height: 200 }}
+              />
+              <motion.div
+                className="absolute rounded-full border border-primary/20"
+                animate={{ scale: [1, 2, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0.3 }}
+                style={{ width: 200, height: 200 }}
+              />
+
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={countdown}
+                  initial={{ scale: 1.8, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.4, opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="text-[9rem] font-romantic text-gradient-romantic leading-none"
+                >
+                  {countdown}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
+            {/* Central heart */}
+            <motion.div
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="mb-6"
+            >
+              <Heart className="w-8 h-8 text-primary fill-primary" />
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-foreground/60 font-romantic text-2xl text-center"
+            >
+              Preparando algo especial…
+            </motion.p>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-foreground/50 font-body text-sm uppercase tracking-[0.3em] mt-8"
+              transition={{ delay: 0.8 }}
+              className="text-foreground/30 font-body text-xs uppercase tracking-[0.3em] mt-3"
             >
-              Preparando seu Wrapped…
+              para vocês dois ♡
             </motion.p>
           </motion.div>
         )}
