@@ -163,14 +163,8 @@ const Index = () => {
           transition={{ duration: 0.6 }}
           className="w-full max-w-lg text-center"
         >
-          <Sparkles className="w-10 h-10 text-primary mx-auto mb-4" />
-          <p className="text-sm text-foreground/70 font-body uppercase tracking-[0.25em] mb-6">
-            Estamos juntos há
-          </p>
+          <Sparkles className="w-10 h-10 text-primary mx-auto mb-6" />
           <TimeCounter startDate={COUPLE_DATE} />
-          <p className="mt-8 text-foreground/50 text-sm font-body">
-            …e contando cada segundo ✨
-          </p>
         </motion.div>
       </section>
 
