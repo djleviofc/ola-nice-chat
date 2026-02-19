@@ -6,6 +6,7 @@ import BodasTimeline from "@/components/BodasTimeline";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import WrappedStories from "@/components/WrappedStories";
+import TimelineJourney from "@/components/TimelineJourney";
 import story1 from "@/assets/story-1.jpg";
 import story2 from "@/assets/story-2.jpg";
 import story3 from "@/assets/story-3.jpg";
@@ -27,12 +28,14 @@ const STORY_PHOTOS = [
   { src: story3, alt: "Nosso momento 3" },
 ];
 
+type StoryPhase = "none" | "wrapped" | "timeline";
+
 const Index = () => {
-  const [showStories, setShowStories] = useState(false);
+  const [storyPhase, setStoryPhase] = useState<StoryPhase>("none");
 
   const handlePlayTriggered = () => {
     setTimeout(() => {
-      setShowStories(true);
+      setStoryPhase("wrapped");
     }, 5000);
   };
 
@@ -40,13 +43,19 @@ const Index = () => {
     <div className="relative bg-background min-h-screen">
       <FloatingHearts />
 
-      {/* Stories overlay */}
+      {/* Stories overlays */}
       <AnimatePresence>
-        {showStories && (
+        {storyPhase === "wrapped" && (
           <WrappedStories
             coupleNames={COUPLE_NAMES}
             coupleDate={COUPLE_DATE}
-            onClose={() => setShowStories(false)}
+            onClose={() => setStoryPhase("timeline")}
+          />
+        )}
+        {storyPhase === "timeline" && (
+          <TimelineJourney
+            onClose={() => setStoryPhase("none")}
+            onNext={() => setStoryPhase("none")}
           />
         )}
       </AnimatePresence>
@@ -129,7 +138,7 @@ const Index = () => {
         />
 
         {/* Deslize para baixo - appears after stories close */}
-        {!showStories && (
+        {storyPhase === "none" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
