@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, Upload, X, Sparkles, Loader2, ArrowLeft, ArrowRight,
@@ -96,6 +97,7 @@ const Criar = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [pixData, setPixData] = useState<{ qr_code: string; qr_code_url?: string; checkout_url?: string; transaction_id: string } | null>(null);
 
   // Step 1: Couple info
   const [coupleData, setCoupleData] = useState({
@@ -234,48 +236,116 @@ const Criar = () => {
     if (!validateStep(step)) return;
     setIsSubmitting(true);
     try {
-      const fd = new FormData();
-      fd.append("nome_cliente", coupleData.nome_cliente.trim());
-      fd.append("nome_parceiro", coupleData.nome_parceiro.trim());
-      fd.append("email", coupleData.email.trim());
-      fd.append("titulo_pagina", coupleData.titulo_pagina.trim());
-      fd.append("data_especial", coupleData.data_especial);
-      fd.append("mensagem", mensagem.trim());
-      fd.append("musica_url", musicaUrl.trim());
+      const { data, error } = await supabase.functions.invoke("create-pix-payment", {
+        body: {
+          amount: 2990, // R$ 29,90
+          description: `Momentos de Amor - ${coupleData.titulo_pagina}`,
+          customer: {
+            name: coupleData.nome_cliente.trim(),
+            email: coupleData.email.trim(),
+            document: "00000000000",
+            phone: "",
+          },
+          metadata: {
+            nome_cliente: coupleData.nome_cliente.trim(),
+            nome_parceiro: coupleData.nome_parceiro.trim(),
+            titulo: coupleData.titulo_pagina.trim(),
+          },
+        },
+      });
 
-      photos.forEach((p) => fd.append("fotos[]", p.file));
+      if (error) throw error;
 
-      const validJourney = journeyEvents.filter((j) => j.title.trim());
-      fd.append("milestones", JSON.stringify(validJourney.map(({ emoji, title, date }) => ({ emoji, title, date }))));
-      fd.append("journey_events", JSON.stringify(validJourney.map(({ month, year, title, description, photoId }) => ({
-        month, year, title, description, photoIndex: photoId ? photos.findIndex((p) => p.id === photoId) : -1,
-      }))));
-
-      const res = await fetch(`${API_BASE}/api/create-order.php`, { method: "POST", body: fd });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-
-      if (data.checkout_url) {
-        window.location.href = data.checkout_url;
-      } else if (data.order_id) {
-        const cRes = await fetch(`${API_BASE}/api/checkout/index.php`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ order_id: data.order_id }),
+      if (data?.success && data?.qr_code) {
+        setPixData({
+          qr_code: data.qr_code,
+          qr_code_url: data.qr_code_url,
+          checkout_url: data.checkout_url,
+          transaction_id: data.transaction_id,
         });
-        const cData = await cRes.json();
-        if (cData.checkout_url || cData.init_point) window.location.href = cData.checkout_url || cData.init_point;
+        toast({ title: "PIX gerado com sucesso! 🎉", description: "Escaneie o QR Code para pagar." });
+      } else if (data?.checkout_url) {
+        window.location.href = data.checkout_url;
       } else {
-        toast({ title: "Pedido criado!", description: "Redirecionando para pagamento..." });
+        throw new Error("Resposta inesperada da API");
       }
-    } catch {
-      toast({ title: "Erro ao criar pedido", description: "Tente novamente.", variant: "destructive" });
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast({ title: "Erro ao gerar pagamento", description: "Tente novamente.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const isLastStep = step === STEPS.length - 1;
+
+  if (pixData) {
+    return (
+      <div className="relative bg-background min-h-screen font-body flex flex-col items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full text-center"
+        >
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+            <Check className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-3xl font-romantic text-foreground mb-2">Pagamento PIX</h2>
+          <p className="text-sm text-muted-foreground mb-8">Escaneie o QR Code ou copie o código para pagar</p>
+
+          <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+            {pixData.qr_code_url ? (
+              <img src={pixData.qr_code_url} alt="QR Code PIX" className="w-48 h-48 mx-auto mb-4 rounded-lg" />
+            ) : (
+              <div className="w-48 h-48 mx-auto mb-4 bg-muted rounded-lg flex items-center justify-center">
+                <span className="text-muted-foreground text-xs">QR Code</span>
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground mb-3">Valor: <strong className="text-foreground">R$ 29,90</strong></p>
+            <div className="relative">
+              <input
+                readOnly
+                value={pixData.qr_code}
+                className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-xs text-foreground font-mono truncate pr-16"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
+              />
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(pixData.qr_code);
+                  toast({ title: "Código PIX copiado! 📋" });
+                }}
+                className="absolute right-1 top-1 bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-md font-semibold hover:bg-primary/90 transition-colors"
+              >
+                Copiar
+              </button>
+            </div>
+          </div>
+
+          {pixData.checkout_url && (
+            <a
+              href={pixData.checkout_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full py-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm transition-colors glow-primary mb-4"
+            >
+              Abrir página de pagamento
+            </a>
+          )}
+
+          <button
+            onClick={() => setPixData(null)}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Voltar ao formulário
+          </button>
+
+          <p className="mt-8 text-[10px] text-muted-foreground/50">
+            ID: {pixData.transaction_id}
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative bg-background min-h-screen font-body">
