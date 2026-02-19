@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, Upload, X, Sparkles, Loader2, ArrowLeft, ArrowRight,
   Music, Image as ImageIcon, Calendar, Mail, User, Type, FileText,
-  Plus, Trash2, GripVertical, Check, ChevronRight
+  Plus, Trash2, Check
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -22,19 +22,14 @@ interface PhotoPreview {
   url: string;
 }
 
-interface Milestone {
-  id: string;
-  emoji: string;
-  title: string;
-  date: string;
-}
-
 interface JourneyEvent {
   id: string;
+  emoji: string;
   month: string;
   year: string;
   title: string;
   description: string;
+  date: string;
   photoId?: string;
 }
 
@@ -42,8 +37,7 @@ const STEPS = [
   { label: "Casal", icon: Heart },
   { label: "Fotos", icon: ImageIcon },
   { label: "Mensagem", icon: FileText },
-  { label: "Marcos", icon: Calendar },
-  { label: "Jornada", icon: ChevronRight },
+  { label: "Jornada", icon: Calendar },
   { label: "Música", icon: Music },
 ];
 
@@ -118,17 +112,12 @@ const Criar = () => {
   // Step 3: Message
   const [mensagem, setMensagem] = useState("");
 
-  // Step 4: Milestones
-  const [milestones, setMilestones] = useState<Milestone[]>([
-    { id: uid(), emoji: "💕", title: "", date: "" },
-  ]);
-
-  // Step 5: Journey events
+  // Step 4: Journey events (unified milestones + journey)
   const [journeyEvents, setJourneyEvents] = useState<JourneyEvent[]>([
-    { id: uid(), month: "Jan", year: "2022", title: "", description: "" },
+    { id: uid(), emoji: "💕", month: "Jan", year: "2022", title: "", description: "", date: "" },
   ]);
 
-  // Step 6: Music
+  // Step 5: Music
   const [musicaUrl, setMusicaUrl] = useState("");
 
   const updateCouple = (field: string, value: string) => {
@@ -204,14 +193,8 @@ const Criar = () => {
     }
   };
 
-  /* ── Milestones ── */
-  const addMilestone = () => setMilestones((prev) => [...prev, { id: uid(), emoji: "💕", title: "", date: "" }]);
-  const removeMilestone = (id: string) => setMilestones((prev) => prev.filter((m) => m.id !== id));
-  const updateMilestone = (id: string, field: string, value: string) =>
-    setMilestones((prev) => prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)));
-
   /* ── Journey ── */
-  const addJourney = () => setJourneyEvents((prev) => [...prev, { id: uid(), month: "Jan", year: "2022", title: "", description: "" }]);
+  const addJourney = () => setJourneyEvents((prev) => [...prev, { id: uid(), emoji: "💕", month: "Jan", year: "2022", title: "", description: "", date: "" }]);
   const removeJourney = (id: string) => setJourneyEvents((prev) => prev.filter((j) => j.id !== id));
   const updateJourney = (id: string, field: string, value: string) =>
     setJourneyEvents((prev) => prev.map((j) => (j.id === id ? { ...j, [field]: value } : j)));
@@ -232,11 +215,10 @@ const Criar = () => {
       if (!mensagem.trim()) errs.mensagem = "Escreva uma mensagem de amor.";
       if (mensagem.length > MAX_MESSAGE_LENGTH) errs.mensagem = `Máximo ${MAX_MESSAGE_LENGTH} caracteres.`;
     } else if (s === 3) {
-      const valid = milestones.filter((m) => m.title.trim() && m.date.trim());
-      if (valid.length === 0) errs.milestones = "Adicione pelo menos 1 marco.";
-    } else if (s === 4) {
       const valid = journeyEvents.filter((j) => j.title.trim());
       if (valid.length === 0) errs.journey = "Adicione pelo menos 1 evento.";
+    } else if (s === 4) {
+      if (!musicaUrl.trim()) errs.musica = "A música é obrigatória para a experiência dos Stories.";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -259,14 +241,12 @@ const Criar = () => {
       fd.append("titulo_pagina", coupleData.titulo_pagina.trim());
       fd.append("data_especial", coupleData.data_especial);
       fd.append("mensagem", mensagem.trim());
-      if (musicaUrl.trim()) fd.append("musica_url", musicaUrl.trim());
+      fd.append("musica_url", musicaUrl.trim());
 
       photos.forEach((p) => fd.append("fotos[]", p.file));
 
-      const validMilestones = milestones.filter((m) => m.title.trim() && m.date.trim());
-      fd.append("milestones", JSON.stringify(validMilestones.map(({ emoji, title, date }) => ({ emoji, title, date }))));
-
       const validJourney = journeyEvents.filter((j) => j.title.trim());
+      fd.append("milestones", JSON.stringify(validJourney.map(({ emoji, title, date }) => ({ emoji, title, date }))));
       fd.append("journey_events", JSON.stringify(validJourney.map(({ month, year, title, description, photoId }) => ({
         month, year, title, description, photoIndex: photoId ? photos.findIndex((p) => p.id === photoId) : -1,
       }))));
@@ -340,17 +320,15 @@ const Criar = () => {
                 {step === 0 && "Dados do Casal"}
                 {step === 1 && "Suas Fotos"}
                 {step === 2 && "Mensagem de Amor"}
-                {step === 3 && "Marcos Especiais"}
-                {step === 4 && "Nossa Jornada"}
-                {step === 5 && "Música do Casal"}
+                {step === 3 && "Nossa Jornada"}
+                {step === 4 && "Música do Casal"}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 {step === 0 && "Informações básicas sobre vocês"}
                 {step === 1 && "As fotos que contam a história de vocês"}
                 {step === 2 && "Escreva algo especial para quem você ama"}
-                {step === 3 && "Os momentos que marcaram o relacionamento"}
-                {step === 4 && "A linha do tempo da história de vocês"}
-                {step === 5 && "A trilha sonora do amor de vocês"}
+                {step === 3 && "Marcos e linha do tempo da história de vocês"}
+                {step === 4 && "A trilha sonora do amor de vocês (obrigatória)"}
               </p>
             </div>
 
@@ -450,83 +428,11 @@ const Criar = () => {
               </div>
             )}
 
-            {/* ── Step 3: Milestones ── */}
+            {/* ── Step 3: Journey (unified) ── */}
             {step === 3 && (
               <div className="space-y-5">
                 <p className="text-sm text-muted-foreground text-center">
-                  Momentos marcantes como primeiro beijo, primeiro encontro, etc. Eles aparecerão nos stories estilo Wrapped.
-                </p>
-
-                <div className="space-y-4">
-                  {milestones.map((m, i) => (
-                    <motion.div
-                      key={m.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-card border border-border rounded-2xl p-4 space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground font-body font-semibold uppercase tracking-wider">Marco #{i + 1}</span>
-                        {milestones.length > 1 && (
-                          <button type="button" onClick={() => removeMilestone(m.id)} className="text-muted-foreground hover:text-destructive transition-colors">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Emoji selector */}
-                      <div>
-                        <p className="text-xs text-muted-foreground font-body mb-1.5">Emoji</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {EMOJI_OPTIONS.map((emoji) => (
-                            <button
-                              key={emoji}
-                              type="button"
-                              onClick={() => updateMilestone(m.id, "emoji", emoji)}
-                              className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all ${m.emoji === emoji ? "bg-primary/20 ring-2 ring-primary scale-110" : "bg-card hover:bg-secondary"}`}
-                            >
-                              {emoji}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <input
-                        type="text"
-                        value={m.title}
-                        onChange={(e) => updateMilestone(m.id, "title", e.target.value)}
-                        placeholder="Ex: Primeiro beijo"
-                        maxLength={80}
-                        className="form-input"
-                      />
-                      <input
-                        type="text"
-                        value={m.date}
-                        onChange={(e) => updateMilestone(m.id, "date", e.target.value)}
-                        placeholder="Ex: 25 de julho de 2022"
-                        maxLength={50}
-                        className="form-input"
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={addMilestone}
-                  className="w-full py-3 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/60 text-primary font-body font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
-                >
-                  <Plus className="w-4 h-4" /> Adicionar marco
-                </button>
-                {errors.milestones && <p className="text-xs text-destructive text-center">{errors.milestones}</p>}
-              </div>
-            )}
-
-            {/* ── Step 4: Journey Events ── */}
-            {step === 4 && (
-              <div className="space-y-5">
-                <p className="text-sm text-muted-foreground text-center">
-                  Eventos da linha do tempo "Nossa Jornada". Cada evento pode ter uma foto associada.
+                  Adicione os momentos marcantes do relacionamento. Eles aparecerão nos Stories e na linha do tempo.
                 </p>
 
                 <div className="space-y-4">
@@ -538,7 +444,7 @@ const Criar = () => {
                       className="bg-card border border-border rounded-2xl p-4 space-y-3"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground font-body font-semibold uppercase tracking-wider">Evento #{i + 1}</span>
+                        <span className="text-xs text-muted-foreground font-body font-semibold uppercase tracking-wider">Momento #{i + 1}</span>
                         {journeyEvents.length > 1 && (
                           <button type="button" onClick={() => removeJourney(j.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                             <Trash2 className="w-4 h-4" />
@@ -546,9 +452,44 @@ const Criar = () => {
                         )}
                       </div>
 
+                      {/* Emoji selector */}
+                      <div>
+                        <p className="text-xs text-muted-foreground font-body mb-1.5">Emoji (para os Stories)</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {EMOJI_OPTIONS.map((emoji) => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              onClick={() => updateJourney(j.id, "emoji", emoji)}
+                              className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-all ${j.emoji === emoji ? "bg-primary/20 ring-2 ring-primary scale-110" : "bg-card hover:bg-secondary"}`}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <input
+                        type="text"
+                        value={j.title}
+                        onChange={(e) => updateJourney(j.id, "title", e.target.value)}
+                        placeholder="Ex: Primeiro beijo"
+                        maxLength={100}
+                        className="form-input"
+                      />
+
+                      <input
+                        type="text"
+                        value={j.date}
+                        onChange={(e) => updateJourney(j.id, "date", e.target.value)}
+                        placeholder="Ex: 25 de julho de 2022 (para os Stories)"
+                        maxLength={50}
+                        className="form-input"
+                      />
+
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <p className="text-xs text-muted-foreground font-body mb-1">Mês</p>
+                          <p className="text-xs text-muted-foreground font-body mb-1">Mês (timeline)</p>
                           <select
                             value={j.month}
                             onChange={(e) => updateJourney(j.id, "month", e.target.value)}
@@ -558,7 +499,7 @@ const Criar = () => {
                           </select>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground font-body mb-1">Ano</p>
+                          <p className="text-xs text-muted-foreground font-body mb-1">Ano (timeline)</p>
                           <input
                             type="text"
                             value={j.year}
@@ -572,17 +513,9 @@ const Criar = () => {
 
                       <input
                         type="text"
-                        value={j.title}
-                        onChange={(e) => updateJourney(j.id, "title", e.target.value)}
-                        placeholder="Ex: Nossas almas se encontraram"
-                        maxLength={100}
-                        className="form-input"
-                      />
-                      <input
-                        type="text"
                         value={j.description}
                         onChange={(e) => updateJourney(j.id, "description", e.target.value)}
-                        placeholder="Ex: Enviei a primeira mensagem"
+                        placeholder="Descrição breve (opcional)"
                         maxLength={200}
                         className="form-input"
                       />
@@ -621,14 +554,14 @@ const Criar = () => {
                   onClick={addJourney}
                   className="w-full py-3 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/60 text-primary font-body font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
                 >
-                  <Plus className="w-4 h-4" /> Adicionar evento
+                  <Plus className="w-4 h-4" /> Adicionar momento
                 </button>
                 {errors.journey && <p className="text-xs text-destructive text-center">{errors.journey}</p>}
               </div>
             )}
 
-            {/* ── Step 5: Music ── */}
-            {step === 5 && (
+            {/* ── Step 4: Music (required) ── */}
+            {step === 4 && (
               <div className="space-y-6">
                 <div className="bg-card/60 backdrop-blur-sm rounded-2xl border border-border p-6 text-center">
                   <Music className="w-10 h-10 text-primary mx-auto mb-4" />
@@ -642,7 +575,8 @@ const Criar = () => {
                     placeholder="https://open.spotify.com/track/..."
                     className="form-input text-center"
                   />
-                  <p className="text-xs text-muted-foreground mt-2">Este campo é opcional</p>
+                  {errors.musica && <p className="text-xs text-destructive mt-2">{errors.musica}</p>}
+                  <p className="text-xs text-muted-foreground mt-2">Obrigatório — a música toca ao iniciar os Stories</p>
                 </div>
 
                 {/* Summary */}
@@ -656,8 +590,7 @@ const Criar = () => {
                     <SummaryRow label="Data especial" value={coupleData.data_especial} />
                     <SummaryRow label="Fotos" value={`${photos.length} foto${photos.length !== 1 ? "s" : ""}`} />
                     <SummaryRow label="Mensagem" value={`${mensagem.length} caracteres`} />
-                    <SummaryRow label="Marcos" value={`${milestones.filter((m) => m.title.trim()).length} marco${milestones.filter((m) => m.title.trim()).length !== 1 ? "s" : ""}`} />
-                    <SummaryRow label="Eventos" value={`${journeyEvents.filter((j) => j.title.trim()).length} evento${journeyEvents.filter((j) => j.title.trim()).length !== 1 ? "s" : ""}`} />
+                    <SummaryRow label="Momentos" value={`${journeyEvents.filter((j) => j.title.trim()).length} momento${journeyEvents.filter((j) => j.title.trim()).length !== 1 ? "s" : ""}`} />
                     <SummaryRow label="Música" value={musicaUrl ? "✓ Adicionada" : "Sem música"} />
                   </div>
                 </div>
