@@ -312,7 +312,9 @@ const Index = () => {
             </div>
             <div>
               <h4 className="text-xs font-body font-bold text-foreground uppercase mb-2">Links</h4>
-              <p className="text-xs text-muted-foreground font-body">Termos de uso e política de privacidade</p>
+              <Link to="/termos" className="text-xs text-muted-foreground font-body hover:text-primary transition-colors">
+                Termos de uso e privacidade
+              </Link>
             </div>
             <div>
               <h4 className="text-xs font-body font-bold text-foreground uppercase mb-2">Redes Sociais</h4>
