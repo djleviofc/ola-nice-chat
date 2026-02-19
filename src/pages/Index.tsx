@@ -117,6 +117,38 @@ const Index = () => {
           </Link>
           <p className="text-xs text-muted-foreground mt-3">+ de 17.000 páginas criadas</p>
         </motion.div>
+
+        {/* iPhone Mockup */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.8 }}
+          className="mt-12 flex justify-center"
+        >
+          <div className="relative mx-auto w-[280px] sm:w-[320px]">
+            {/* iPhone frame */}
+            <div className="relative rounded-[3rem] border-[6px] border-foreground/80 bg-background shadow-2xl overflow-hidden">
+              {/* Notch / Dynamic Island */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-7 bg-foreground/80 rounded-b-2xl z-10" />
+              
+              {/* Screen content */}
+              <div className="pt-8 pb-4">
+                <iframe
+                  src="/demo"
+                  title="Demonstração Momentos de Amor"
+                  className="w-full h-[520px] sm:h-[580px] border-0 pointer-events-none"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Home indicator */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-foreground/30 rounded-full" />
+            </div>
+
+            {/* Glow effect behind phone */}
+            <div className="absolute -inset-4 bg-primary/10 blur-3xl rounded-full -z-10" />
+          </div>
+        </motion.div>
       </section>
 
       {/* Como funciona */}
