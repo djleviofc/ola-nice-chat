@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Heart, Music } from "lucide-react";
+import TimeCounter from "@/components/TimeCounter";
 
 interface Milestone {
   emoji: string;
@@ -11,21 +12,88 @@ interface Milestone {
 
 interface TimelineStoriesProps {
   milestones: Milestone[];
+  coupleNames: string;
+  coupleDate: Date;
   onClose: () => void;
 }
 
-const TimelineStories = ({ milestones, onClose }: TimelineStoriesProps) => {
+const IntroStory = ({ coupleNames, coupleDate }: { coupleNames: string; coupleDate: Date }) => (
+  <div className="flex flex-col items-center justify-center h-full px-8 text-center">
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", duration: 0.6 }}
+      className="mb-6"
+    >
+      <div className="w-20 h-20 rounded-full bg-gradient-romantic flex items-center justify-center glow-primary">
+        <Music className="w-10 h-10 text-primary-foreground" />
+      </div>
+    </motion.div>
+
+    <motion.p
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="text-xs sm:text-sm text-primary font-body uppercase tracking-[0.3em] mb-4"
+    >
+      Tempo de casal animado
+    </motion.p>
+
+    <motion.h2
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.35 }}
+      className="text-4xl sm:text-6xl font-romantic text-gradient-romantic leading-tight mb-4"
+    >
+      {coupleNames}
+    </motion.h2>
+
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.5 }}
+      className="text-foreground/60 font-body text-sm sm:text-base max-w-xs mb-8 leading-relaxed"
+    >
+      Seu tempo de casal animado no estilo da retrospectiva do app de músicas. 100% personalizada para esse amor tão especial de vocês dois!
+    </motion.p>
+
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.65 }}
+    >
+      <TimeCounter startDate={coupleDate} />
+    </motion.div>
+
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.9 }}
+      className="mt-8 flex items-center gap-2"
+    >
+      <Heart className="w-4 h-4 text-primary fill-primary" />
+      <span className="text-xs text-foreground/40 font-body uppercase tracking-widest">
+        …e contando cada segundo
+      </span>
+      <Heart className="w-4 h-4 text-primary fill-primary" />
+    </motion.div>
+  </div>
+);
+
+const TimelineStories = ({ milestones, coupleNames, coupleDate, onClose }: TimelineStoriesProps) => {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(0);
 
+  const totalSlides = milestones.length + 1; // +1 for intro
+
   const goNext = useCallback(() => {
-    if (current < milestones.length - 1) {
+    if (current < totalSlides - 1) {
       setDirection(1);
       setCurrent((c) => c + 1);
     } else {
       onClose();
     }
-  }, [current, milestones.length, onClose]);
+  }, [current, totalSlides, onClose]);
 
   const goPrev = useCallback(() => {
     if (current > 0) {
@@ -56,7 +124,9 @@ const TimelineStories = ({ milestones, onClose }: TimelineStoriesProps) => {
     }),
   };
 
-  const m = milestones[current];
+  const isIntro = current === 0;
+  const milestoneIndex = current - 1;
+  const m = !isIntro ? milestones[milestoneIndex] : null;
 
   return (
     <motion.div
@@ -67,12 +137,12 @@ const TimelineStories = ({ milestones, onClose }: TimelineStoriesProps) => {
     >
       {/* Progress bars */}
       <div className="flex gap-1 px-3 pt-3 pb-2 z-10">
-        {milestones.map((_, i) => (
+        {Array.from({ length: totalSlides }).map((_, i) => (
           <div key={i} className="flex-1 h-0.5 bg-foreground/20 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-primary rounded-full"
               initial={false}
-              animate={{ width: i < current ? "100%" : i === current ? "100%" : "0%" }}
+              animate={{ width: i <= current ? "100%" : "0%" }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -101,49 +171,51 @@ const TimelineStories = ({ milestones, onClose }: TimelineStoriesProps) => {
             animate="center"
             exit="exit"
             transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="absolute inset-0 flex flex-col items-center justify-center px-8"
+            className="absolute inset-0 flex flex-col items-center justify-center"
           >
-            {/* Emoji */}
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", delay: 0.15 }}
-              className="text-7xl sm:text-8xl mb-6"
-            >
-              {m.emoji}
-            </motion.span>
+            {isIntro ? (
+              <IntroStory coupleNames={coupleNames} coupleDate={coupleDate} />
+            ) : m ? (
+              <div className="flex flex-col items-center justify-center px-8">
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.15 }}
+                  className="text-7xl sm:text-8xl mb-6"
+                >
+                  {m.emoji}
+                </motion.span>
 
-            {/* Date */}
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-xs sm:text-sm text-primary font-body uppercase tracking-[0.3em] mb-3"
-            >
-              {m.date}
-            </motion.p>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-xs sm:text-sm text-primary font-body uppercase tracking-[0.3em] mb-3"
+                >
+                  {m.date}
+                </motion.p>
 
-            {/* Title */}
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-3xl sm:text-5xl font-romantic text-gradient-romantic text-center leading-tight"
-            >
-              {m.title}
-            </motion.h2>
+                <motion.h2
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-3xl sm:text-5xl font-romantic text-gradient-romantic text-center leading-tight"
+                >
+                  {m.title}
+                </motion.h2>
 
-            {/* Description */}
-            {m.description && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
-                className="mt-4 text-foreground/70 font-body text-center text-sm sm:text-base max-w-xs"
-              >
-                {m.description}
-              </motion.p>
-            )}
+                {m.description && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.45 }}
+                    className="mt-4 text-foreground/70 font-body text-center text-sm sm:text-base max-w-xs"
+                  >
+                    {m.description}
+                  </motion.p>
+                )}
+              </div>
+            ) : null}
 
             {/* Navigation hint */}
             <motion.div
