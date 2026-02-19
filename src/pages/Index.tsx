@@ -81,15 +81,7 @@ const Index = () => {
 
       {/* ── SECTION 2: Photo Carousel with parallax ── */}
       <section className="relative py-20 px-4 flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8 }}
-          className="text-center"
-        >
-          <PhotoCarousel photos={STORY_PHOTOS} />
-        </motion.div>
+        <PhotoCarousel photos={STORY_PHOTOS} />
       </section>
 
       {/* ── SECTION 3: Names ── */}
