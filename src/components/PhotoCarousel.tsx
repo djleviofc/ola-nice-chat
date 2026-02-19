@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface PhotoCarouselProps {
   photos: { src: string; alt: string }[];
@@ -8,69 +7,80 @@ interface PhotoCarouselProps {
 
 const PhotoCarousel = ({ photos }: PhotoCarouselProps) => {
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(0);
 
-  const paginate = (dir: number) => {
-    setDirection(dir);
-    setCurrent((prev) => (prev + dir + photos.length) % photos.length);
-  };
+  const getIndex = (offset: number) =>
+    (current + offset + photos.length) % photos.length;
 
-  const variants = {
-    enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%", opacity: 0, scale: 0.9 }),
-    center: { x: 0, opacity: 1, scale: 1 },
-    exit: (d: number) => ({ x: d > 0 ? "-100%" : "100%", opacity: 0, scale: 0.9 }),
-  };
+  const prev = getIndex(-1);
+  const next = getIndex(1);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      {/* Photo container - stories aspect ratio */}
-      <div className="relative w-[280px] sm:w-[320px] aspect-[9/16] rounded-3xl overflow-hidden border-2 border-primary/30 glow-primary">
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">
-          <motion.img
-            key={current}
-            src={photos[current].src}
-            alt={photos[current].alt}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute inset-0 w-full h-full object-cover"
+    <div className="w-full flex flex-col items-center">
+      <div
+        className="relative w-full max-w-4xl mx-auto flex items-center justify-center gap-4 sm:gap-8 px-4"
+        style={{ perspective: "1200px" }}
+      >
+        {/* Left card */}
+        <motion.div
+          key={`left-${prev}`}
+          className="flex-shrink-0 cursor-pointer"
+          animate={{ rotateY: 30, scale: 0.85, opacity: 0.6 }}
+          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          onClick={() => setCurrent(prev)}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <img
+            src={photos[prev].src}
+            alt={photos[prev].alt}
+            className="w-[160px] sm:w-[220px] h-[240px] sm:h-[340px] object-cover rounded-2xl shadow-2xl"
           />
-        </AnimatePresence>
+        </motion.div>
 
-        {/* Navigation arrows */}
-        <button
-          onClick={() => paginate(-1)}
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center text-foreground/80 hover:bg-background/70 transition-colors z-10"
+        {/* Center card */}
+        <motion.div
+          key={`center-${current}`}
+          className="flex-shrink-0 z-10"
+          animate={{ rotateY: 0, scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          style={{ transformStyle: "preserve-3d" }}
         >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => paginate(1)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center text-foreground/80 hover:bg-background/70 transition-colors z-10"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-
-        {/* Progress dots */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-          {photos.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setDirection(i > current ? 1 : -1);
-                setCurrent(i);
-              }}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === current
-                  ? "w-6 bg-primary"
-                  : "w-1.5 bg-foreground/40"
-              }`}
+          <div className="w-[200px] sm:w-[280px] h-[300px] sm:h-[420px] rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/40 glow-primary">
+            <img
+              src={photos[current].src}
+              alt={photos[current].alt}
+              className="w-full h-full object-cover"
             />
-          ))}
-        </div>
+          </div>
+        </motion.div>
+
+        {/* Right card */}
+        <motion.div
+          key={`right-${next}`}
+          className="flex-shrink-0 cursor-pointer"
+          animate={{ rotateY: -30, scale: 0.85, opacity: 0.6 }}
+          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          onClick={() => setCurrent(next)}
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <img
+            src={photos[next].src}
+            alt={photos[next].alt}
+            className="w-[160px] sm:w-[220px] h-[240px] sm:h-[340px] object-cover rounded-2xl shadow-2xl"
+          />
+        </motion.div>
+      </div>
+
+      {/* Dots */}
+      <div className="flex gap-2 mt-8">
+        {photos.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              i === current ? "w-6 bg-primary" : "w-2 bg-foreground/30"
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
