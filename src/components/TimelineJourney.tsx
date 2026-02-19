@@ -17,7 +17,7 @@ interface TimelineEvent {
 interface TimelineJourneyProps {
   onClose: () => void;
   onNext?: () => void;
-  events?: Array<{ emoji: string; title: string; date: string; description: string }>;
+  events?: Array<{ emoji: string; title: string; date: string; description: string; photo?: string }>;
 }
 
 const DEFAULT_EVENTS: TimelineEvent[] = [
@@ -217,6 +217,7 @@ const TimelineJourney = ({ onClose, onNext, events: externalEvents }: TimelineJo
           year: parts[1] || "",
           title: e.title,
           description: e.description,
+          photo: e.photo,
           rotation: rotations[i % rotations.length],
         };
       });
