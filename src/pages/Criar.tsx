@@ -240,6 +240,7 @@ const Criar = () => {
 
       // Upload photos to Supabase Storage
       const photoUrls: string[] = [];
+      const photoIdToUrl: Record<string, string> = {};
       for (const photo of photos) {
         const ext = photo.file.name.split('.').pop() || 'jpg';
         const filePath = `${slug}/${photo.id}.${ext}`;
@@ -254,6 +255,7 @@ const Criar = () => {
           .from('couple-photos')
           .getPublicUrl(filePath);
         photoUrls.push(urlData.publicUrl);
+        photoIdToUrl[photo.id] = urlData.publicUrl;
       }
 
       // Create payment preference
@@ -291,8 +293,7 @@ const Criar = () => {
         musica_url: musicaUrl.trim(),
         fotos: photoUrls.map((url, i) => ({ url, alt: `Foto ${i + 1}` })),
         journey_events: journeyEvents.filter(j => j.title.trim()).map(j => {
-          const photoUrl = j.photoId ? photos.find(p => p.id === j.photoId) : null;
-          const matchedUrl = photoUrl ? photoUrls[photos.indexOf(photoUrl)] : undefined;
+          const matchedUrl = j.photoId ? photoIdToUrl[j.photoId] : undefined;
           return {
             emoji: j.emoji,
             title: j.title,
