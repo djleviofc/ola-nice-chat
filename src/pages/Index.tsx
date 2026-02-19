@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Music, Star, Sparkles } from "lucide-react";
-import TimeCounter from "@/components/TimeCounter";
+import { Heart, Music, Star } from "lucide-react";
 import FloatingHearts from "@/components/FloatingHearts";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
@@ -154,19 +153,6 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ── SECTION 5: Counter ── */}
-      <section className="relative py-24 px-4 flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-lg text-center"
-        >
-          <Sparkles className="w-10 h-10 text-primary mx-auto mb-6" />
-          <TimeCounter startDate={COUPLE_DATE} />
-        </motion.div>
-      </section>
 
       {/* ── SECTION 6: Love Message ── */}
       <section className="relative py-24 px-4 flex flex-col items-center">
