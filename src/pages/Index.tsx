@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Music, Star } from "lucide-react";
 import FloatingHearts from "@/components/FloatingHearts";
+import BodasTimeline from "@/components/BodasTimeline";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import WrappedStories from "@/components/WrappedStories";
@@ -154,6 +155,10 @@ const Index = () => {
         </motion.div>
       </section>
 
+      {/* ── SECTION 5: Bodas ── */}
+      <section className="relative py-24 px-4 flex flex-col items-center">
+        <BodasTimeline />
+      </section>
 
       {/* ── SECTION 6: Love Message ── */}
       <section className="relative py-24 px-4 flex flex-col items-center">
