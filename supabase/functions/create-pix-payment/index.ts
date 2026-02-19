@@ -53,6 +53,7 @@ serve(async (req) => {
       auto_return: "approved",
       notification_url: `https://ymrmbwvdwxtdnxdfraza.supabase.co/functions/v1/mp-webhook`,
       metadata: metadata || {},
+      external_reference: metadata?.orderId || metadata?.slug || "",
     };
 
     const response = await fetch(MP_API_URL, {
