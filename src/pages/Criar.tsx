@@ -173,23 +173,22 @@ const Criar = () => {
     }
     setIsGenerating(true);
     try {
-      const res = await fetch(`${API_BASE}/api/generate-message.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke("generate-love-message", {
+        body: {
           myName: coupleData.nome_cliente,
           partnerName: coupleData.nome_parceiro || "Amor",
           dataEspecial: coupleData.data_especial || "",
-        }),
+        },
       });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      if (data.message || data.mensagem) {
-        setMensagem(data.message || data.mensagem);
+      if (error) throw error;
+      if (data?.message) {
+        setMensagem(data.message);
         toast({ title: "Mensagem gerada! ✨" });
+      } else {
+        throw new Error("Sem mensagem");
       }
     } catch {
-      toast({ title: "Erro ao gerar mensagem", variant: "destructive" });
+      toast({ title: "Erro ao gerar mensagem", description: "Tente novamente.", variant: "destructive" });
     } finally {
       setIsGenerating(false);
     }
