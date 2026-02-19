@@ -238,19 +238,22 @@ const Criar = () => {
       // Generate unique slug
       const slug = `${coupleData.titulo_pagina.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now().toString(36)}`;
 
-      // Upload photos to PHP API and get URLs
+      // Upload photos to Supabase Storage
       const photoUrls: string[] = [];
       for (const photo of photos) {
-        const formData = new FormData();
-        formData.append("file", photo.file);
-        try {
-          const uploadRes = await fetch(`${API_BASE}/create-order.php`, { method: "POST", body: formData });
-          const uploadData = await uploadRes.json();
-          if (uploadData?.url) photoUrls.push(uploadData.url);
-          else photoUrls.push(photo.url);
-        } catch {
-          photoUrls.push(photo.url);
+        const ext = photo.file.name.split('.').pop() || 'jpg';
+        const filePath = `${slug}/${photo.id}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('couple-photos')
+          .upload(filePath, photo.file, { contentType: photo.file.type });
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          continue;
         }
+        const { data: urlData } = supabase.storage
+          .from('couple-photos')
+          .getPublicUrl(filePath);
+        photoUrls.push(urlData.publicUrl);
       }
 
       // Create payment preference

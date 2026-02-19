@@ -95,6 +95,7 @@ const PageView = () => {
           <TimelineJourney
             onClose={() => { setStoryPhase("none"); setHasSeenTimeline(true); }}
             onNext={() => { setStoryPhase("none"); setHasSeenTimeline(true); }}
+            events={page.journey_events}
           />
         )}
       </AnimatePresence>
@@ -131,7 +132,7 @@ const PageView = () => {
             <Music className="w-8 h-8 text-primary mx-auto mb-3" />
             <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic">Nossa Música</h2>
           </motion.div>
-          <SpotifyPlayer songName="Nossa Música" artistName={coupleNames} onPlayTriggered={handlePlayTriggered} />
+          <SpotifyPlayer songName="Nossa Música" artistName={coupleNames} coverPhoto={photos.length > 0 ? photos[0].src : undefined} onPlayTriggered={handlePlayTriggered} />
           {hasSeenTimeline && storyPhase === "none" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-10 animate-bounce text-foreground/50">
               <span className="text-xs font-body uppercase tracking-widest">Deslize para baixo</span>
