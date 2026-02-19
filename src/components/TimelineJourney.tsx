@@ -5,11 +5,6 @@ import story1 from "@/assets/story-1.jpg";
 import story2 from "@/assets/story-2.jpg";
 import story3 from "@/assets/story-3.jpg";
 
-interface TimelineJourneyProps {
-  onClose: () => void;
-  onNext?: () => void;
-}
-
 interface TimelineEvent {
   month: string;
   year: string;
@@ -19,52 +14,19 @@ interface TimelineEvent {
   rotation: number;
 }
 
-const EVENTS: TimelineEvent[] = [
-  {
-    month: "Mai",
-    year: "2022",
-    title: "Nossas almas se encontraram",
-    description: "Enviei a primeira mensagem",
-    photo: story1,
-    rotation: -3,
-  },
-  {
-    month: "Jun",
-    year: "2022",
-    title: "Primeiro encontro",
-    description: "Nosso primeiro beijo",
-    photo: story2,
-    rotation: 4,
-  },
-  {
-    month: "Ago",
-    year: "2022",
-    title: "Perdidamente apaixonado",
-    description: "Eu já estava perdidamente apaixonado",
-    rotation: -2,
-  },
-  {
-    month: "Set",
-    year: "2022",
-    title: "Conheci sua família",
-    description: "Conheci sua família pela primeira vez",
-    photo: story3,
-    rotation: 3,
-  },
-  {
-    month: "Out",
-    year: "2022",
-    title: "Primeira viagem juntos",
-    description: "Caldas Novas — nosso primeiro destino a dois",
-    rotation: -4,
-  },
-  {
-    month: "Nov",
-    year: "2022",
-    title: "Pedido de namoro",
-    description: "A oficialização de algo único",
-    rotation: 2,
-  },
+interface TimelineJourneyProps {
+  onClose: () => void;
+  onNext?: () => void;
+  events?: Array<{ emoji: string; title: string; date: string; description: string }>;
+}
+
+const DEFAULT_EVENTS: TimelineEvent[] = [
+  { month: "Mai", year: "2022", title: "Nossas almas se encontraram", description: "Enviei a primeira mensagem", photo: story1, rotation: -3 },
+  { month: "Jun", year: "2022", title: "Primeiro encontro", description: "Nosso primeiro beijo", photo: story2, rotation: 4 },
+  { month: "Ago", year: "2022", title: "Perdidamente apaixonado", description: "Eu já estava perdidamente apaixonado", rotation: -2 },
+  { month: "Set", year: "2022", title: "Conheci sua família", description: "Conheci sua família pela primeira vez", photo: story3, rotation: 3 },
+  { month: "Out", year: "2022", title: "Primeira viagem juntos", description: "Caldas Novas — nosso primeiro destino a dois", rotation: -4 },
+  { month: "Nov", year: "2022", title: "Pedido de namoro", description: "A oficialização de algo único", rotation: 2 },
 ];
 
 /* ── Stars background ── */
@@ -243,8 +205,24 @@ const TimelineItemMobile = ({
 );
 
 /* ── Main component ── */
-const TimelineJourney = ({ onClose, onNext }: TimelineJourneyProps) => {
+const TimelineJourney = ({ onClose, onNext, events: externalEvents }: TimelineJourneyProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const rotations = [-3, 4, -2, 3, -4, 2, -3, 4, -2, 3];
+  const EVENTS: TimelineEvent[] = useMemo(() => {
+    if (externalEvents && externalEvents.length > 0) {
+      return externalEvents.map((e, i) => {
+        const parts = e.date.split(" ");
+        return {
+          month: parts[0] || "",
+          year: parts[1] || "",
+          title: e.title,
+          description: e.description,
+          rotation: rotations[i % rotations.length],
+        };
+      });
+    }
+    return DEFAULT_EVENTS;
+  }, [externalEvents]);
 
   return (
     <motion.div

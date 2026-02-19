@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, SkipBack, SkipForward, Heart } from "lucide-react";
-import couplePhoto from "@/assets/couple-photo.jpg";
+import defaultCouplePhoto from "@/assets/couple-photo.jpg";
 
 interface SpotifyPlayerProps {
   songName: string;
   artistName: string;
+  coverPhoto?: string;
   onPlayTriggered: () => void;
 }
 
-const SpotifyPlayer = ({ songName, artistName, onPlayTriggered }: SpotifyPlayerProps) => {
+const SpotifyPlayer = ({ songName, artistName, coverPhoto, onPlayTriggered }: SpotifyPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
 
@@ -32,7 +33,7 @@ const SpotifyPlayer = ({ songName, artistName, onPlayTriggered }: SpotifyPlayerP
         {/* Album art */}
         <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-5">
           <img
-            src={couplePhoto}
+            src={coverPhoto || defaultCouplePhoto}
             alt="Foto do casal"
             className="w-full h-full object-cover"
           />
