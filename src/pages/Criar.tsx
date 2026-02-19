@@ -97,7 +97,7 @@ const Criar = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [pixData, setPixData] = useState<{ qr_code: string; qr_code_url?: string; checkout_url?: string; transaction_id: string } | null>(null);
+  
 
   // Step 1: Couple info
   const [coupleData, setCoupleData] = useState({
@@ -235,15 +235,35 @@ const Criar = () => {
     if (!validateStep(step)) return;
     setIsSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-pix-payment", {
+      // Generate unique slug
+      const slug = `${coupleData.titulo_pagina.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now().toString(36)}`;
+
+      // Upload photos to PHP API and get URLs
+      const photoUrls: string[] = [];
+      for (const photo of photos) {
+        const formData = new FormData();
+        formData.append("file", photo.file);
+        try {
+          const uploadRes = await fetch(`${API_BASE}/create-order.php`, { method: "POST", body: formData });
+          const uploadData = await uploadRes.json();
+          if (uploadData?.url) photoUrls.push(uploadData.url);
+          else photoUrls.push(photo.url);
+        } catch {
+          photoUrls.push(photo.url);
+        }
+      }
+
+      // Create payment preference
+      const { data: paymentData, error: paymentError } = await supabase.functions.invoke("create-pix-payment", {
         body: {
-          amount: 2990, // R$ 29,90
+          amount: 2990,
           description: `Momentos de Amor - ${coupleData.titulo_pagina}`,
           customer: {
             name: coupleData.nome_cliente.trim(),
             email: coupleData.email.trim(),
           },
           metadata: {
+            slug,
             nome_cliente: coupleData.nome_cliente.trim(),
             nome_parceiro: coupleData.nome_parceiro.trim(),
             titulo: coupleData.titulo_pagina.trim(),
@@ -251,13 +271,38 @@ const Criar = () => {
         },
       });
 
-      if (error) throw error;
-
-      if (data?.success && data?.checkout_url) {
-        window.location.href = data.checkout_url;
-      } else {
-        throw new Error(data?.error || "Resposta inesperada da API");
+      if (paymentError) throw paymentError;
+      if (!paymentData?.success || !paymentData?.checkout_url) {
+        throw new Error(paymentData?.error || "Erro ao criar pagamento");
       }
+
+      // Save order to database
+      const { error: insertError } = await supabase.from("orders").insert({
+        slug,
+        nome_cliente: coupleData.nome_cliente.trim(),
+        nome_parceiro: coupleData.nome_parceiro.trim(),
+        email: coupleData.email.trim(),
+        titulo_pagina: coupleData.titulo_pagina.trim(),
+        data_especial: coupleData.data_especial || null,
+        mensagem: mensagem.trim(),
+        musica_url: musicaUrl.trim(),
+        fotos: photoUrls.map((url, i) => ({ url, alt: `Foto ${i + 1}` })),
+        journey_events: journeyEvents.filter(j => j.title.trim()).map(j => ({
+          emoji: j.emoji,
+          title: j.title,
+          date: `${j.month} ${j.year}`,
+          description: j.description,
+        })),
+        payment_preference_id: paymentData.preference_id,
+        amount: 2990,
+      } as any);
+
+      if (insertError) {
+        console.error("Error saving order:", insertError);
+        // Continue to checkout even if save fails
+      }
+
+      window.location.href = paymentData.checkout_url;
     } catch (err) {
       console.error("Payment error:", err);
       toast({ title: "Erro ao gerar pagamento", description: "Tente novamente.", variant: "destructive" });
@@ -268,73 +313,8 @@ const Criar = () => {
 
   const isLastStep = step === STEPS.length - 1;
 
-  if (pixData) {
-    return (
-      <div className="relative bg-background min-h-screen font-body flex flex-col items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full text-center"
-        >
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <Check className="w-8 h-8 text-primary" />
-          </div>
-          <h2 className="text-3xl font-romantic text-foreground mb-2">Pagamento PIX</h2>
-          <p className="text-sm text-muted-foreground mb-8">Escaneie o QR Code ou copie o código para pagar</p>
 
-          <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-            {pixData.qr_code_url ? (
-              <img src={pixData.qr_code_url} alt="QR Code PIX" className="w-48 h-48 mx-auto mb-4 rounded-lg" />
-            ) : (
-              <div className="w-48 h-48 mx-auto mb-4 bg-muted rounded-lg flex items-center justify-center">
-                <span className="text-muted-foreground text-xs">QR Code</span>
-              </div>
-            )}
-            <p className="text-xs text-muted-foreground mb-3">Valor: <strong className="text-foreground">R$ 29,90</strong></p>
-            <div className="relative">
-              <input
-                readOnly
-                value={pixData.qr_code}
-                className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-xs text-foreground font-mono truncate pr-16"
-                onClick={(e) => (e.target as HTMLInputElement).select()}
-              />
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(pixData.qr_code);
-                  toast({ title: "Código PIX copiado! 📋" });
-                }}
-                className="absolute right-1 top-1 bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-md font-semibold hover:bg-primary/90 transition-colors"
-              >
-                Copiar
-              </button>
-            </div>
-          </div>
 
-          {pixData.checkout_url && (
-            <a
-              href={pixData.checkout_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full py-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm transition-colors glow-primary mb-4"
-            >
-              Abrir página de pagamento
-            </a>
-          )}
-
-          <button
-            onClick={() => setPixData(null)}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Voltar ao formulário
-          </button>
-
-          <p className="mt-8 text-[10px] text-muted-foreground/50">
-            ID: {pixData.transaction_id}
-          </p>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative bg-background min-h-screen font-body">

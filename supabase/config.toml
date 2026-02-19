@@ -1,1 +1,7 @@
 project_id = "ymrmbwvdwxtdnxdfraza"
+
+[functions.mp-webhook]
+verify_jwt = false
+
+[functions.admin-orders]
+verify_jwt = false
