@@ -40,6 +40,10 @@
     --romantic-warm: 20 80% 55%;
     --romantic-soft: 330 60% 70%;
 
+    --spotify-green: 141 73% 42%;
+    --wrapped-red: 0 70% 50%;
+    --wrapped-bg: 0 0% 5%;
+
     --sidebar-background: 240 10% 8%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 340 82% 55%;
@@ -82,6 +86,10 @@
     box-shadow: 0 0 30px hsl(var(--romantic-glow) / 0.3), 0 0 60px hsl(var(--romantic-glow) / 0.1);
   }
 
+  .glow-spotify {
+    box-shadow: 0 0 40px hsl(var(--spotify-green) / 0.4), 0 0 80px hsl(var(--spotify-green) / 0.15);
+  }
+
   .text-gradient-romantic {
     background: linear-gradient(135deg, hsl(var(--romantic-glow)), hsl(var(--romantic-warm)));
     -webkit-background-clip: text;
@@ -89,7 +97,18 @@
     background-clip: text;
   }
 
+  .text-gradient-spotify {
+    background: linear-gradient(135deg, hsl(var(--spotify-green)), hsl(141 73% 52%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   .bg-gradient-romantic {
     background: linear-gradient(135deg, hsl(var(--romantic-glow)), hsl(var(--romantic-warm)));
+  }
+
+  .bg-wrapped {
+    background: hsl(var(--wrapped-bg));
   }
 }

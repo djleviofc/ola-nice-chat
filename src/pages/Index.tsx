@@ -4,7 +4,7 @@ import { Heart, Music, Star } from "lucide-react";
 import FloatingHearts from "@/components/FloatingHearts";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
-import TimelineStories from "@/components/TimelineStories";
+import WrappedStories from "@/components/WrappedStories";
 import story1 from "@/assets/story-1.jpg";
 import story2 from "@/assets/story-2.jpg";
 import story3 from "@/assets/story-3.jpg";
@@ -42,8 +42,7 @@ const Index = () => {
       {/* Stories overlay */}
       <AnimatePresence>
         {showStories && (
-          <TimelineStories
-            milestones={MILESTONES}
+          <WrappedStories
             coupleNames={COUPLE_NAMES}
             coupleDate={COUPLE_DATE}
             onClose={() => setShowStories(false)}
