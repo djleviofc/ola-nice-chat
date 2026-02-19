@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Heart, Music, Star, Sparkles, Camera } from "lucide-react";
+import { Heart, Music, Star, Sparkles } from "lucide-react";
 import TimeCounter from "@/components/TimeCounter";
 import FloatingHearts from "@/components/FloatingHearts";
 import PhotoCarousel from "@/components/PhotoCarousel";
@@ -117,6 +117,15 @@ const Index = () => {
           >
             <span className="text-xs font-body uppercase tracking-widest">Deslize para baixo</span>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.8, duration: 0.8 }}
+            className="mt-16"
+          >
+            <PhotoCarousel photos={STORY_PHOTOS} />
+          </motion.div>
         </div>
       </ParallaxImage>
 
@@ -202,24 +211,8 @@ const Index = () => {
         </div>
       </ParallaxImage>
 
-      {/* ── SLIDE 5: Photo Gallery Stories ── */}
-      <ParallaxImage src={couplePhoto} alt="Nossas fotos" speed={0.15} overlay={0.7}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.8 }}
-          className="text-center"
-        >
-          <Camera className="w-8 h-8 text-primary mx-auto mb-3" />
-          <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic mb-8">
-            Nossos Momentos
-          </h2>
-          <PhotoCarousel photos={STORY_PHOTOS} />
-        </motion.div>
-      </ParallaxImage>
 
-      {/* ── SLIDE 6: Love Message over roses ── */}
+      {/* ── SLIDE 5: Love Message over roses ── */}
       <ParallaxImage src={romanticBg} alt="Rosas e velas" speed={0.2} overlay={0.6}>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
