@@ -1,14 +1,8 @@
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Heart, Music, Star, Sparkles } from "lucide-react";
 import TimeCounter from "@/components/TimeCounter";
 import FloatingHearts from "@/components/FloatingHearts";
 import PhotoCarousel from "@/components/PhotoCarousel";
-import heroBg from "@/assets/hero-bg.jpg";
-import coupleHands from "@/assets/couple-hands.jpg";
-import coupleDance from "@/assets/couple-dance.jpg";
-import romanticBg from "@/assets/romantic-bg.jpg";
-import couplePhoto from "@/assets/couple-photo.jpg";
 import story1 from "@/assets/story-1.jpg";
 import story2 from "@/assets/story-2.jpg";
 import story3 from "@/assets/story-3.jpg";
@@ -23,114 +17,83 @@ const MILESTONES = [
   { emoji: "🏠", title: "Morando juntos", date: "15 de janeiro de 2023" },
   { emoji: "✈️", title: "Primeira viagem", date: "10 de março de 2023" },
 ];
+
 const STORY_PHOTOS = [
   { src: story1, alt: "Nosso momento 1" },
   { src: story2, alt: "Nosso momento 2" },
   { src: story3, alt: "Nosso momento 3" },
 ];
 
-function ParallaxImage({
-  src,
-  alt,
-  speed = 0.3,
-  overlay = 0.5,
-  children,
-  className = "",
-}: {
-  src: string;
-  alt: string;
-  speed?: number;
-  overlay?: number;
-  children?: React.ReactNode;
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const y = useTransform(scrollYProgress, [0, 1], [`-${speed * 20}%`, `${speed * 20}%`]);
-
-  return (
-    <div ref={ref} className={`relative min-h-screen overflow-hidden ${className}`}>
-      <motion.div style={{ y }} className="absolute inset-0 -top-[20%] -bottom-[20%]">
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
-      </motion.div>
-      <div
-        className="absolute inset-0"
-        style={{ background: `rgba(0,0,0,${overlay})` }}
-      />
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
-        {children}
-      </div>
-    </div>
-  );
-}
-
 const Index = () => {
   return (
-    <div className="relative bg-background">
+    <div className="relative bg-background min-h-screen">
       <FloatingHearts />
 
-      {/* ── SLIDE 1: Hero with beach bg ── */}
-      <ParallaxImage src={heroBg} alt="Casal na praia" speed={0.4} overlay={0.45}>
-        <div className="text-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", duration: 0.8 }}
-            className="mb-6 flex justify-center"
-          >
-            <div className="w-14 h-14 rounded-full bg-gradient-romantic flex items-center justify-center glow-primary">
-              <Heart className="w-7 h-7 text-primary-foreground fill-primary-foreground" />
-            </div>
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-sm uppercase tracking-[0.3em] text-foreground/70 font-body mb-2"
-          >
-            Nosso
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="text-6xl sm:text-8xl font-romantic text-gradient-romantic leading-tight"
-          >
-            Tempo Juntos
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="text-lg sm:text-xl text-foreground font-body font-light mt-2"
-          >
-            É O MELHOR <span className="font-semibold">PRESENTE</span>
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-12 animate-bounce text-foreground/50"
-          >
-            <span className="text-xs font-body uppercase tracking-widest">Deslize para baixo</span>
-          </motion.div>
+      {/* ── SECTION 1: Hero ── */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", duration: 0.8 }}
+          className="mb-6"
+        >
+          <div className="w-14 h-14 rounded-full bg-gradient-romantic flex items-center justify-center glow-primary">
+            <Heart className="w-7 h-7 text-primary-foreground fill-primary-foreground" />
+          </div>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 0.8 }}
-            className="mt-16"
-          >
-            <PhotoCarousel photos={STORY_PHOTOS} />
-          </motion.div>
-        </div>
-      </ParallaxImage>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-sm uppercase tracking-[0.3em] text-foreground/70 font-body mb-2"
+        >
+          Nosso
+        </motion.p>
 
-      {/* ── SLIDE 2: Names + Photo ── */}
-      <ParallaxImage src={couplePhoto} alt={COUPLE_NAMES} speed={0.25} overlay={0.55}>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.7 }}
+          className="text-6xl sm:text-8xl font-romantic text-gradient-romantic leading-tight text-center"
+        >
+          Tempo Juntos
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="text-lg sm:text-xl text-foreground font-body font-light mt-2"
+        >
+          É O MELHOR <span className="font-semibold">PRESENTE</span>
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="mt-12 animate-bounce text-foreground/50"
+        >
+          <span className="text-xs font-body uppercase tracking-widest">Deslize para baixo</span>
+        </motion.div>
+      </section>
+
+      {/* ── SECTION 2: Photo Carousel with parallax ── */}
+      <section className="relative py-20 px-4 flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <PhotoCarousel photos={STORY_PHOTOS} />
+        </motion.div>
+      </section>
+
+      {/* ── SECTION 3: Names ── */}
+      <section className="relative py-24 px-4 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -144,7 +107,7 @@ const Index = () => {
           <p className="text-sm text-foreground/60 font-body mt-3 tracking-widest uppercase">
             22 de julho de 2022
           </p>
-          <div className="mt-6 flex justify-center gap-2">
+          <div className="mt-6 flex justify-center">
             <motion.div
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 1.5, repeat: Infinity }}
@@ -153,10 +116,10 @@ const Index = () => {
             </motion.div>
           </div>
         </motion.div>
-      </ParallaxImage>
+      </section>
 
-      {/* ── SLIDE 3: Counter over hands photo ── */}
-      <ParallaxImage src={coupleHands} alt="Mãos do casal" speed={0.35} overlay={0.6}>
+      {/* ── SECTION 4: Counter ── */}
+      <section className="relative py-24 px-4 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -173,10 +136,10 @@ const Index = () => {
             …e contando cada segundo ✨
           </p>
         </motion.div>
-      </ParallaxImage>
+      </section>
 
-      {/* ── SLIDE 4: Milestones over dance photo ── */}
-      <ParallaxImage src={coupleDance} alt="Casal dançando" speed={0.3} overlay={0.65}>
+      {/* ── SECTION 5: Milestones ── */}
+      <section className="relative py-24 px-4 flex flex-col items-center">
         <div className="w-full max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -198,22 +161,21 @@ const Index = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15, duration: 0.5 }}
-                className="flex items-center gap-4 bg-background/40 backdrop-blur-md rounded-2xl p-5 border border-foreground/10"
+                className="flex items-center gap-4 bg-card/60 backdrop-blur-md rounded-2xl p-5 border border-border"
               >
                 <span className="text-3xl">{m.emoji}</span>
                 <div>
                   <p className="text-foreground font-body font-medium">{m.title}</p>
-                  <p className="text-xs text-foreground/50 font-body">{m.date}</p>
+                  <p className="text-xs text-muted-foreground font-body">{m.date}</p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
-      </ParallaxImage>
+      </section>
 
-
-      {/* ── SLIDE 5: Love Message over roses ── */}
-      <ParallaxImage src={romanticBg} alt="Rosas e velas" speed={0.2} overlay={0.6}>
+      {/* ── SECTION 6: Love Message ── */}
+      <section className="relative py-24 px-4 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -222,13 +184,13 @@ const Index = () => {
           className="max-w-lg text-center"
         >
           <Heart className="w-8 h-8 text-primary fill-primary mx-auto mb-6" />
-          <div className="bg-background/30 backdrop-blur-md rounded-3xl p-8 sm:p-10 border border-foreground/10 glow-primary">
+          <div className="bg-card/40 backdrop-blur-md rounded-3xl p-8 sm:p-10 border border-border glow-primary">
             <p className="text-foreground/90 font-body text-base sm:text-lg leading-relaxed italic">
               "{LOVE_MESSAGE}"
             </p>
           </div>
 
-          <div className="mt-10 flex items-center justify-center gap-2 text-foreground/40 text-xs font-body">
+          <div className="mt-10 flex items-center justify-center gap-2 text-muted-foreground text-xs font-body">
             <Music className="w-4 h-4" />
             <span>Nossa música favorita ♪</span>
           </div>
@@ -237,7 +199,7 @@ const Index = () => {
             Feito com <Heart className="w-3 h-3 inline text-primary fill-primary" /> Tempo Juntos
           </p>
         </motion.div>
-      </ParallaxImage>
+      </section>
     </div>
   );
 };
