@@ -1,8 +1,11 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Music, Star, Sparkles } from "lucide-react";
 import TimeCounter from "@/components/TimeCounter";
 import FloatingHearts from "@/components/FloatingHearts";
 import PhotoCarousel from "@/components/PhotoCarousel";
+import SpotifyPlayer from "@/components/SpotifyPlayer";
+import TimelineStories from "@/components/TimelineStories";
 import story1 from "@/assets/story-1.jpg";
 import story2 from "@/assets/story-2.jpg";
 import story3 from "@/assets/story-3.jpg";
@@ -25,9 +28,27 @@ const STORY_PHOTOS = [
 ];
 
 const Index = () => {
+  const [showStories, setShowStories] = useState(false);
+
+  const handlePlayTriggered = () => {
+    setTimeout(() => {
+      setShowStories(true);
+    }, 5000);
+  };
+
   return (
     <div className="relative bg-background min-h-screen">
       <FloatingHearts />
+
+      {/* Stories overlay */}
+      <AnimatePresence>
+        {showStories && (
+          <TimelineStories
+            milestones={MILESTONES}
+            onClose={() => setShowStories(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── SECTION 1: Hero ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4">
@@ -79,7 +100,7 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ── SECTION 2: Photo Carousel with parallax ── */}
+      {/* ── SECTION 2: Photo Carousel ── */}
       <section className="relative py-20 px-4 flex flex-col items-center">
         <PhotoCarousel photos={STORY_PHOTOS} />
       </section>
@@ -130,40 +151,27 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ── SECTION 5: Milestones ── */}
+      {/* ── SECTION 5: Spotify Player ── */}
       <section className="relative py-24 px-4 flex flex-col items-center">
-        <div className="w-full max-w-md">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <Star className="w-8 h-8 text-primary mx-auto mb-3" />
-            <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic">
-              Nossos Momentos
-            </h2>
-          </motion.div>
-
-          <div className="space-y-4">
-            {MILESTONES.map((m, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
-                className="flex items-center gap-4 bg-card/60 backdrop-blur-md rounded-2xl p-5 border border-border"
-              >
-                <span className="text-3xl">{m.emoji}</span>
-                <div>
-                  <p className="text-foreground font-body font-medium">{m.title}</p>
-                  <p className="text-xs text-muted-foreground font-body">{m.date}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-8"
+        >
+          <Music className="w-8 h-8 text-primary mx-auto mb-3" />
+          <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic">
+            Nossa Música
+          </h2>
+          <p className="text-sm text-foreground/50 font-body mt-2">
+            Aperte o play e reviva nossa história ✨
+          </p>
+        </motion.div>
+        <SpotifyPlayer
+          songName="Nossa Música Favorita"
+          artistName={COUPLE_NAMES}
+          onPlayTriggered={handlePlayTriggered}
+        />
       </section>
 
       {/* ── SECTION 6: Love Message ── */}
@@ -180,11 +188,6 @@ const Index = () => {
             <p className="text-foreground/90 font-body text-base sm:text-lg leading-relaxed italic">
               "{LOVE_MESSAGE}"
             </p>
-          </div>
-
-          <div className="mt-10 flex items-center justify-center gap-2 text-muted-foreground text-xs font-body">
-            <Music className="w-4 h-4" />
-            <span>Nossa música favorita ♪</span>
           </div>
 
           <p className="mt-16 text-xs text-foreground/30 font-body">
