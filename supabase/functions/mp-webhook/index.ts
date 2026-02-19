@@ -18,7 +18,7 @@ async function sendConfirmationEmail(
   tituloPagina: string
 ) {
   const pageUrl = `${APP_URL}/p/${slug}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pageUrl)}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(pageUrl)}&color=f0f0f0&bgcolor=1a1a2e&format=png`;
 
   const html = `
 <!DOCTYPE html>
@@ -26,56 +26,84 @@ async function sendConfirmationEmail(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0;padding:0;background:#fff8f8;font-family:'Helvetica Neue',Arial,sans-serif;">
-  <div style="max-width:560px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-    
+<body style="margin:0;padding:0;background:#0f0f1a;font-family:'Poppins',Arial,sans-serif;">
+
+  <div style="max-width:580px;margin:32px auto;border-radius:24px;overflow:hidden;background:#13131f;box-shadow:0 0 60px rgba(220,38,127,0.15);">
+
     <!-- Header -->
-    <div style="background:linear-gradient(135deg,#e91e8c,#ff6b6b);padding:40px 32px;text-align:center;">
-      <div style="font-size:40px;margin-bottom:8px;">💕</div>
-      <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">Sua página está pronta!</h1>
-      <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:15px;">${tituloPagina}</p>
+    <div style="background:linear-gradient(135deg,#dc267f 0%,#e85d3a 100%);padding:48px 32px 40px;text-align:center;position:relative;">
+      <!-- Decorative dots -->
+      <div style="position:absolute;top:16px;left:24px;width:6px;height:6px;background:rgba(255,255,255,0.3);border-radius:50%;"></div>
+      <div style="position:absolute;top:28px;left:36px;width:4px;height:4px;background:rgba(255,255,255,0.2);border-radius:50%;"></div>
+      <div style="position:absolute;top:16px;right:24px;width:6px;height:6px;background:rgba(255,255,255,0.3);border-radius:50%;"></div>
+      <div style="position:absolute;top:28px;right:36px;width:4px;height:4px;background:rgba(255,255,255,0.2);border-radius:50%;"></div>
+
+      <div style="font-size:44px;margin-bottom:12px;line-height:1;">💕</div>
+      <p style="margin:0 0 4px;font-family:'Poppins',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.35em;color:rgba(255,255,255,0.75);text-transform:uppercase;">NOSSO</p>
+      <h1 style="margin:4px 0 8px;font-family:'Dancing Script',cursive;font-size:38px;font-weight:700;color:#ffffff;line-height:1.1;">Momentos de Amor</h1>
+      <p style="margin:0;font-family:'Poppins',sans-serif;font-size:13px;color:rgba(255,255,255,0.8);">${tituloPagina}</p>
     </div>
 
+    <!-- Glowing divider -->
+    <div style="height:2px;background:linear-gradient(90deg,transparent,rgba(220,38,127,0.6),transparent);"></div>
+
     <!-- Body -->
-    <div style="padding:32px;">
-      <p style="margin:0 0 16px;color:#333;font-size:16px;">Olá, <strong>${nomeCliente}</strong>! 🥰</p>
-      <p style="margin:0 0 24px;color:#555;font-size:15px;line-height:1.6;">
-        Seu pagamento foi confirmado e a página especial para você e <strong>${nomeParceiro}</strong> já está disponível!
+    <div style="padding:40px 36px;">
+
+      <p style="margin:0 0 8px;font-family:'Poppins',sans-serif;font-size:15px;color:#f0f0f0;">
+        Olá, <strong style="color:#e8608a;">${nomeCliente}</strong>! 🥰
+      </p>
+      <p style="margin:0 0 32px;font-family:'Poppins',sans-serif;font-size:14px;color:#8888aa;line-height:1.7;">
+        Seu pagamento foi confirmado! A página especial para você e <strong style="color:#f0f0f0;">${nomeParceiro}</strong> já está disponível e pronta para ser compartilhada.
       </p>
 
       <!-- CTA Button -->
-      <div style="text-align:center;margin:24px 0;">
-        <a href="${pageUrl}" 
-           style="display:inline-block;background:linear-gradient(135deg,#e91e8c,#ff6b6b);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:16px;font-weight:700;letter-spacing:0.3px;">
+      <div style="text-align:center;margin:0 0 32px;">
+        <a href="${pageUrl}"
+           style="display:inline-block;background:linear-gradient(135deg,#dc267f,#e85d3a);color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:50px;font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.3px;box-shadow:0 0 30px rgba(220,38,127,0.4);">
           💖 Ver minha página
         </a>
       </div>
 
-      <!-- Link text -->
-      <p style="text-align:center;margin:16px 0;color:#888;font-size:13px;">
-        Ou acesse: <a href="${pageUrl}" style="color:#e91e8c;">${pageUrl}</a>
+      <!-- Link -->
+      <p style="text-align:center;margin:0 0 36px;font-family:'Poppins',sans-serif;font-size:12px;color:#555577;">
+        Link direto: <a href="${pageUrl}" style="color:#dc267f;text-decoration:none;">${pageUrl}</a>
       </p>
 
-      <!-- QR Code -->
-      <div style="background:#fff8f8;border-radius:12px;padding:24px;text-align:center;margin:24px 0;border:1px solid #fde8f0;">
-        <p style="margin:0 0 16px;color:#444;font-size:14px;font-weight:600;">📱 QR Code da sua página</p>
-        <img src="${qrCodeUrl}" alt="QR Code" width="160" height="160" style="border-radius:8px;display:block;margin:0 auto;" />
-        <p style="margin:12px 0 0;color:#888;font-size:12px;">Escaneie para abrir no celular</p>
+      <!-- QR Code Card -->
+      <div style="background:#0d0d1a;border:1px solid rgba(220,38,127,0.25);border-radius:16px;padding:28px;text-align:center;box-shadow:0 0 40px rgba(220,38,127,0.08);">
+        <p style="margin:0 0 6px;font-family:'Dancing Script',cursive;font-size:22px;color:#e8608a;">QR Code da sua página</p>
+        <p style="margin:0 0 20px;font-family:'Poppins',sans-serif;font-size:12px;color:#555577;">Aponte a câmera do celular para escanear</p>
+
+        <!-- QR wrapper with glow -->
+        <div style="display:inline-block;padding:12px;background:#1a1a2e;border-radius:12px;border:1px solid rgba(220,38,127,0.2);box-shadow:0 0 24px rgba(220,38,127,0.15);">
+          <img src="${qrCodeUrl}" alt="QR Code" width="180" height="180" style="display:block;border-radius:6px;" />
+        </div>
+
+        <p style="margin:20px 0 0;font-family:'Poppins',sans-serif;font-size:12px;color:#555577;line-height:1.6;">
+          📱 Salve o QR Code e imprima em papel fotográfico<br/>para um presente ainda mais especial!
+        </p>
       </div>
 
-      <p style="margin:0;color:#888;font-size:13px;text-align:center;line-height:1.6;">
-        Compartilhe este link com quem você ama 💝<br/>
-        Guarde este email para acessar sua página sempre que quiser.
-      </p>
+      <!-- Tip box -->
+      <div style="margin-top:28px;background:linear-gradient(135deg,rgba(220,38,127,0.08),rgba(232,93,58,0.08));border:1px solid rgba(220,38,127,0.15);border-radius:12px;padding:16px 20px;">
+        <p style="margin:0;font-family:'Poppins',sans-serif;font-size:12px;color:#8888aa;line-height:1.7;">
+          💡 <strong style="color:#e8608a;">Dica:</strong> Compartilhe o link ou QR Code com quem você ama. Sua página fica disponível para sempre, sem custos adicionais. 🌹
+        </p>
+      </div>
     </div>
 
     <!-- Footer -->
-    <div style="background:#fef6f9;padding:20px 32px;text-align:center;border-top:1px solid #fde8f0;">
-      <p style="margin:0;color:#bbb;font-size:12px;">
-        Love Pages · Sua história de amor merece ser contada 💕
+    <div style="background:#0d0d1a;padding:24px 32px;text-align:center;border-top:1px solid rgba(255,255,255,0.05);">
+      <p style="margin:0 0 4px;font-family:'Dancing Script',cursive;font-size:20px;color:#dc267f;">Momentos de Amor</p>
+      <p style="margin:0;font-family:'Poppins',sans-serif;font-size:11px;color:#444466;">
+        Sua história de amor merece ser contada 💕<br/>
+        <a href="${APP_URL}" style="color:#555577;text-decoration:none;">${APP_URL}</a>
       </p>
     </div>
+
   </div>
 </body>
 </html>`;
