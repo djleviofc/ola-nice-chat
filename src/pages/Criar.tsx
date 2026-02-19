@@ -242,8 +242,6 @@ const Criar = () => {
           customer: {
             name: coupleData.nome_cliente.trim(),
             email: coupleData.email.trim(),
-            document: "00000000000",
-            phone: "",
           },
           metadata: {
             nome_cliente: coupleData.nome_cliente.trim(),
@@ -255,18 +253,10 @@ const Criar = () => {
 
       if (error) throw error;
 
-      if (data?.success && data?.qr_code) {
-        setPixData({
-          qr_code: data.qr_code,
-          qr_code_url: data.qr_code_url,
-          checkout_url: data.checkout_url,
-          transaction_id: data.transaction_id,
-        });
-        toast({ title: "PIX gerado com sucesso! 🎉", description: "Escaneie o QR Code para pagar." });
-      } else if (data?.checkout_url) {
+      if (data?.success && data?.checkout_url) {
         window.location.href = data.checkout_url;
       } else {
-        throw new Error("Resposta inesperada da API");
+        throw new Error(data?.error || "Resposta inesperada da API");
       }
     } catch (err) {
       console.error("Payment error:", err);
