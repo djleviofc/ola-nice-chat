@@ -57,6 +57,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        spotify: {
+          DEFAULT: "hsl(var(--spotify-green))",
+          foreground: "hsl(0 0% 100%)",
+        },
+        "wrapped-red": {
+          DEFAULT: "hsl(var(--wrapped-red))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
