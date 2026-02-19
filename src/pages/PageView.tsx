@@ -18,7 +18,7 @@ interface PageData {
   mensagem: string;
   musica_url: string;
   fotos: Array<{ url: string; alt?: string }>;
-  journey_events: Array<{ emoji: string; title: string; date: string; description: string }>;
+  journey_events: Array<{ emoji: string; title: string; date: string; description: string; photo?: string }>;
 }
 
 type StoryPhase = "none" | "wrapped" | "timeline";

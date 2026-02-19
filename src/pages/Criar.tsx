@@ -290,12 +290,17 @@ const Criar = () => {
         mensagem: mensagem.trim(),
         musica_url: musicaUrl.trim(),
         fotos: photoUrls.map((url, i) => ({ url, alt: `Foto ${i + 1}` })),
-        journey_events: journeyEvents.filter(j => j.title.trim()).map(j => ({
-          emoji: j.emoji,
-          title: j.title,
-          date: `${j.month} ${j.year}`,
-          description: j.description,
-        })),
+        journey_events: journeyEvents.filter(j => j.title.trim()).map(j => {
+          const photoUrl = j.photoId ? photos.find(p => p.id === j.photoId) : null;
+          const matchedUrl = photoUrl ? photoUrls[photos.indexOf(photoUrl)] : undefined;
+          return {
+            emoji: j.emoji,
+            title: j.title,
+            date: `${j.month} ${j.year}`,
+            description: j.description,
+            photo: matchedUrl || undefined,
+          };
+        }),
         payment_preference_id: paymentData.preference_id,
         amount: 2990,
       } as any);
