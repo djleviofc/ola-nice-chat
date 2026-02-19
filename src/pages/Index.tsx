@@ -32,6 +32,7 @@ type StoryPhase = "none" | "wrapped" | "timeline";
 
 const Index = () => {
   const [storyPhase, setStoryPhase] = useState<StoryPhase>("none");
+  const [hasSeenTimeline, setHasSeenTimeline] = useState(false);
 
   const handlePlayTriggered = () => {
     setTimeout(() => {
@@ -54,8 +55,8 @@ const Index = () => {
         )}
         {storyPhase === "timeline" && (
           <TimelineJourney
-            onClose={() => setStoryPhase("none")}
-            onNext={() => setStoryPhase("none")}
+            onClose={() => { setStoryPhase("none"); setHasSeenTimeline(true); }}
+            onNext={() => { setStoryPhase("none"); setHasSeenTimeline(true); }}
           />
         )}
       </AnimatePresence>
@@ -138,7 +139,7 @@ const Index = () => {
         />
 
         {/* Deslize para baixo - appears after stories close */}
-        {storyPhase === "none" && (
+        {hasSeenTimeline && storyPhase === "none" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
