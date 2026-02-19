@@ -73,10 +73,11 @@ const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTrigg
     if (youtubeId) {
       initYtPlayer();
     } else if (musicUrl) {
+      // Create and unlock Audio element synchronously within the user gesture context
       const audio = new Audio();
-      audio.play().catch(() => {});
-      audio.src = musicUrl;
       audio.loop = true;
+      audio.src = musicUrl;
+      // Unlock for iOS/mobile: attempt play immediately (may fail, but unlocks element)
       audio.play().catch(() => {});
       audioRef.current = audio;
     }
