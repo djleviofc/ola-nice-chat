@@ -127,6 +127,18 @@ const Index = () => {
           artistName={COUPLE_NAMES}
           onPlayTriggered={handlePlayTriggered}
         />
+
+        {/* Deslize para baixo - appears after stories close */}
+        {!showStories && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-10 animate-bounce text-foreground/50"
+          >
+            <span className="text-xs font-body uppercase tracking-widest">Deslize para baixo</span>
+          </motion.div>
+        )}
       </section>
 
       {/* ── SECTION 4: Names ── */}
