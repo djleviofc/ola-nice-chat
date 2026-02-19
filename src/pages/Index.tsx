@@ -291,7 +291,7 @@ const Index = () => {
           <Link to="/demo" className="inline-block group">
             <div className="relative inline-flex items-center justify-center p-4 bg-card border border-border rounded-3xl shadow-lg hover:shadow-xl transition-shadow glow-primary">
               <QRCodeSVG
-                value="https://ola-nice-chat.lovable.app/demo"
+                value="https://momentodeamor.com/demo"
                 size={180}
                 bgColor="transparent"
                 fgColor="hsl(var(--foreground))"
