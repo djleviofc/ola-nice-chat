@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, SkipBack, SkipForward, Heart } from "lucide-react";
 import defaultCouplePhoto from "@/assets/couple-photo.jpg";
@@ -11,24 +11,76 @@ interface SpotifyPlayerProps {
   onPlayTriggered: () => void;
 }
 
+// Extract YouTube video ID from various URL formats
+const getYouTubeId = (url: string): string | null => {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+  for (const p of patterns) {
+    const match = url.match(p);
+    if (match) return match[1];
+  }
+  return null;
+};
+
+declare global {
+  interface Window {
+    onYouTubeIframeAPIReady?: () => void;
+    YT?: any;
+  }
+}
+
 const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTriggered }: SpotifyPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const ytPlayerRef = useRef<any>(null);
+  const ytContainerRef = useRef<HTMLDivElement>(null);
+  const [ytReady, setYtReady] = useState(false);
+
+  const youtubeId = musicUrl ? getYouTubeId(musicUrl) : null;
+
+  // Load YouTube IFrame API if needed
+  useEffect(() => {
+    if (!youtubeId) return;
+    if (window.YT && window.YT.Player) {
+      setYtReady(true);
+      return;
+    }
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = () => setYtReady(true);
+  }, [youtubeId]);
+
+  const initYtPlayer = useCallback(() => {
+    if (!youtubeId || !ytReady || !ytContainerRef.current || ytPlayerRef.current) return;
+    ytPlayerRef.current = new window.YT.Player(ytContainerRef.current, {
+      height: "1",
+      width: "1",
+      videoId: youtubeId,
+      playerVars: { autoplay: 1, loop: 1, playlist: youtubeId, controls: 0 },
+      events: {
+        onReady: (e: any) => e.target.playVideo(),
+      },
+    });
+  }, [youtubeId, ytReady]);
 
   const handlePlay = () => {
     if (hasTriggered) return;
-    
-    // Create and play audio synchronously in user gesture context
-    if (musicUrl) {
+
+    if (youtubeId) {
+      initYtPlayer();
+    } else if (musicUrl) {
       const audio = new Audio();
-      audio.play().catch(() => {}); // unlock on iOS
+      audio.play().catch(() => {});
       audio.src = musicUrl;
       audio.loop = true;
       audio.play().catch(() => {});
       audioRef.current = audio;
     }
-    
+
     setIsPlaying(true);
     setHasTriggered(true);
     onPlayTriggered();
@@ -42,6 +94,8 @@ const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTrigg
       transition={{ duration: 0.8 }}
       className="w-full max-w-sm mx-auto"
     >
+      {/* Hidden YouTube player */}
+      {youtubeId && <div ref={ytContainerRef} className="hidden" />}
       <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 border border-border shadow-2xl">
         {/* Album art */}
         <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-5">
