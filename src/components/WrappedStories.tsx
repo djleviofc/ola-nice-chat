@@ -168,10 +168,10 @@ const BigNumberSlide = ({ totalDays }: { totalDays: number }) => (
 );
 
 /* ── Slide 3: Animated Counter (Odometer) ── */
-const OdometerSlide = ({ totalHours }: { totalHours: number }) => {
+const OdometerSlide = ({ totalDays }: { totalDays: number }) => {
   const [counting, setCounting] = useState(true);
   const [displayNum, setDisplayNum] = useState(0);
-  const target = totalHours;
+  const target = totalDays;
 
   useEffect(() => {
     if (!counting) return;
@@ -204,9 +204,9 @@ const OdometerSlide = ({ totalHours }: { totalHours: number }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="text-spotify font-body text-sm uppercase tracking-[0.3em] mb-8"
+      className="text-spotify font-body text-sm uppercase tracking-[0.3em] mb-8"
       >
-        Horas juntos
+        Dias juntos
       </motion.p>
 
       <div className="flex items-center justify-center overflow-hidden">
@@ -235,7 +235,7 @@ const OdometerSlide = ({ totalHours }: { totalHours: number }) => {
 };
 
 /* ── Slide 4: Final Stat ── */
-const FinalStatSlide = ({ totalHours }: { totalHours: number }) => (
+const FinalStatSlide = ({ totalDays }: { totalDays: number }) => (
   <div className="flex flex-col items-center justify-center h-full px-8 text-center relative">
     <PulsingCircles />
 
@@ -259,9 +259,9 @@ const FinalStatSlide = ({ totalHours }: { totalHours: number }) => (
       </p>
 
       <p className="text-foreground font-body text-lg sm:text-xl font-semibold leading-relaxed">
-        Horas juntos:{" "}
+        Dias juntos:{" "}
         <span className="text-spotify font-extrabold text-3xl sm:text-4xl">
-          {totalHours.toLocaleString("pt-BR")}
+          {totalDays.toLocaleString("pt-BR")}
         </span>
       </p>
 
@@ -350,8 +350,8 @@ const WrappedStories = ({ coupleNames, coupleDate, onClose }: WrappedStoriesProp
   const slides = [
     <CoverSlide coupleNames={coupleNames} />,
     <BigNumberSlide totalDays={totalDays} />,
-    <OdometerSlide totalHours={totalHours} />,
-    <FinalStatSlide totalHours={totalHours} />,
+    <OdometerSlide totalDays={totalDays} />,
+    <FinalStatSlide totalDays={totalDays} />,
   ];
 
   return (
