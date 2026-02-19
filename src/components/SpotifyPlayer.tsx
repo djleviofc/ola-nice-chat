@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, SkipBack, SkipForward, Heart } from "lucide-react";
 import defaultCouplePhoto from "@/assets/couple-photo.jpg";
@@ -7,15 +7,28 @@ interface SpotifyPlayerProps {
   songName: string;
   artistName: string;
   coverPhoto?: string;
+  musicUrl?: string;
   onPlayTriggered: () => void;
 }
 
-const SpotifyPlayer = ({ songName, artistName, coverPhoto, onPlayTriggered }: SpotifyPlayerProps) => {
+const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTriggered }: SpotifyPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handlePlay = () => {
     if (hasTriggered) return;
+    
+    // Create and play audio synchronously in user gesture context
+    if (musicUrl) {
+      const audio = new Audio();
+      audio.play().catch(() => {}); // unlock on iOS
+      audio.src = musicUrl;
+      audio.loop = true;
+      audio.play().catch(() => {});
+      audioRef.current = audio;
+    }
+    
     setIsPlaying(true);
     setHasTriggered(true);
     onPlayTriggered();
