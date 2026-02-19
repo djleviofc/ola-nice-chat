@@ -105,7 +105,30 @@ const Index = () => {
         <PhotoCarousel photos={STORY_PHOTOS} />
       </section>
 
-      {/* ── SECTION 3: Names ── */}
+      {/* ── SECTION 3: Spotify Player ── */}
+      <section className="relative py-24 px-4 flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-8"
+        >
+          <Music className="w-8 h-8 text-primary mx-auto mb-3" />
+          <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic">
+            Nossa Música
+          </h2>
+          <p className="text-sm text-foreground/50 font-body mt-2">
+            Aperte o play e reviva nossa história ✨
+          </p>
+        </motion.div>
+        <SpotifyPlayer
+          songName="Nossa Música Favorita"
+          artistName={COUPLE_NAMES}
+          onPlayTriggered={handlePlayTriggered}
+        />
+      </section>
+
+      {/* ── SECTION 4: Names ── */}
       <section className="relative py-24 px-4 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -131,7 +154,7 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ── SECTION 4: Counter ── */}
+      {/* ── SECTION 5: Counter ── */}
       <section className="relative py-24 px-4 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -149,29 +172,6 @@ const Index = () => {
             …e contando cada segundo ✨
           </p>
         </motion.div>
-      </section>
-
-      {/* ── SECTION 5: Spotify Player ── */}
-      <section className="relative py-24 px-4 flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-8"
-        >
-          <Music className="w-8 h-8 text-primary mx-auto mb-3" />
-          <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic">
-            Nossa Música
-          </h2>
-          <p className="text-sm text-foreground/50 font-body mt-2">
-            Aperte o play e reviva nossa história ✨
-          </p>
-        </motion.div>
-        <SpotifyPlayer
-          songName="Nossa Música Favorita"
-          artistName={COUPLE_NAMES}
-          onPlayTriggered={handlePlayTriggered}
-        />
       </section>
 
       {/* ── SECTION 6: Love Message ── */}
