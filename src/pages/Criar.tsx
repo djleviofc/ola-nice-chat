@@ -288,7 +288,7 @@ const Criar = () => {
           </Link>
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-primary fill-primary" />
-            <span className="font-romantic text-lg text-foreground">Tempo Juntos</span>
+            <span className="font-romantic text-lg text-foreground">Momentos de Amor</span>
           </div>
           <div className="w-16" />
         </div>
