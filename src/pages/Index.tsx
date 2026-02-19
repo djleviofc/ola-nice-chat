@@ -1,208 +1,298 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Music, Star } from "lucide-react";
-import FloatingHearts from "@/components/FloatingHearts";
-import BodasTimeline from "@/components/BodasTimeline";
-import PhotoCarousel from "@/components/PhotoCarousel";
-import SpotifyPlayer from "@/components/SpotifyPlayer";
-import WrappedStories from "@/components/WrappedStories";
-import TimelineJourney from "@/components/TimelineJourney";
-import story1 from "@/assets/story-1.jpg";
-import story2 from "@/assets/story-2.jpg";
-import story3 from "@/assets/story-3.jpg";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Heart, Pen, CreditCard, QrCode, Lightbulb, ChevronLeft, ChevronRight, Star, X, Clock, HelpCircle, Mail, Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-const COUPLE_DATE = new Date("2022-07-22T00:00:00");
-const COUPLE_NAMES = "Maria & José";
-const LOVE_MESSAGE = `Desde que você chegou, tudo ficou mais bonito e mais cheio de significado. Sua risada, suas palavras e sua presença tornam meus dias mais leves e cheios de amor. Obrigado(a) por compartilhar momentos comigo. Te amo mais a cada dia que passa. ❤️`;
-
-const MILESTONES = [
-  { emoji: "💕", title: "Primeiro encontro", date: "22 de julho de 2022" },
-  { emoji: "💋", title: "Primeiro beijo", date: "25 de julho de 2022" },
-  { emoji: "🏠", title: "Morando juntos", date: "15 de janeiro de 2023" },
-  { emoji: "✈️", title: "Primeira viagem", date: "10 de março de 2023" },
+const TESTIMONIALS = [
+  { name: "Ana & Pedro", time: "juntos a 2 anos", message: "Ficou lindo com nossas fotos. Simples e cheio de significado.", rating: 5 },
+  { name: "Carla & Lucas", time: "juntos a 4 anos", message: "Ele amou o presente! Chorou quando viu a página com nossa história.", rating: 5 },
+  { name: "Julia & Marcos", time: "juntos a 1 ano", message: "Surpreendi no aniversário de namoro. A reação dele não teve preço!", rating: 5 },
+  { name: "Bea & Thiago", time: "juntos a 3 anos", message: "Muito fácil de criar e o resultado ficou incrível. Super recomendo!", rating: 5 },
 ];
 
-const STORY_PHOTOS = [
-  { src: story1, alt: "Nosso momento 1" },
-  { src: story2, alt: "Nosso momento 2" },
-  { src: story3, alt: "Nosso momento 3" },
+const TIPS = [
+  { title: "Imprima seu QR Code", description: "Imprima o QR Code em um papel fotográfico, pode tornar seu presente ainda mais duradouro e sofisticado. Dica extra: Papéis fotográficos de 230g possuem maior durabilidade e acabamento." },
+  { title: "Adicione uma música especial", description: "Coloque a música que marcou vocês! Quando a pessoa abrir a página, vai ouvir a trilha sonora do amor de vocês." },
+  { title: "Escolha fotos com significado", description: "Selecione fotos que contem a história de vocês. Cada imagem vale mais que mil palavras." },
+  { title: "Personalize a mensagem", description: "Escreva do coração! Uma mensagem autêntica toca muito mais do que qualquer texto pronto." },
 ];
 
-type StoryPhase = "none" | "wrapped" | "timeline";
+const FAQS = [
+  { q: "O que é o Tempo Juntos?", a: "É uma plataforma que cria páginas românticas personalizadas com suas fotos, mensagens e músicas. Você recebe um QR Code exclusivo para compartilhar com quem ama." },
+  { q: "A página é permanente?", a: "Sim! Sua página fica disponível para sempre, sem custos adicionais." },
+  { q: "Como faço para criar minha página?", a: "É simples: personalize com suas fotos e mensagens, finalize o pagamento via PIX e receba seu QR Code na hora." },
+  { q: "Consigo editar a página depois de criada?", a: "No momento a edição não está disponível, mas estamos trabalhando nessa funcionalidade." },
+  { q: "Métodos de pagamento?", a: "Aceitamos PIX como forma de pagamento, com confirmação instantânea." },
+  { q: "Minhas informações ficam públicas?", a: "Não! Apenas quem tem o link ou QR Code pode acessar sua página." },
+  { q: "Funciona em outros dispositivos?", a: "Sim! A página funciona perfeitamente em celulares, tablets e computadores." },
+];
 
-const Index = () => {
-  const [storyPhase, setStoryPhase] = useState<StoryPhase>("none");
-  const [hasSeenTimeline, setHasSeenTimeline] = useState(false);
+const TimeCounterLanding = () => {
+  const [time, setTime] = useState({ years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  const handlePlayTriggered = () => {
-    setTimeout(() => {
-      setStoryPhase("wrapped");
-    }, 5000);
-  };
+  useEffect(() => {
+    const target = new Date("2022-01-15T00:00:00");
+    const update = () => {
+      const now = new Date();
+      let years = now.getFullYear() - target.getFullYear();
+      let months = now.getMonth() - target.getMonth();
+      let days = now.getDate() - target.getDate();
+      if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+      if (months < 0) { years--; months += 12; }
+      setTime({ years, months, days, hours: now.getHours(), minutes: now.getMinutes(), seconds: now.getSeconds() });
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const blocks = [
+    { value: time.years, label: "Anos" },
+    { value: time.months, label: "Meses" },
+    { value: time.days, label: "Dias" },
+    { value: time.hours, label: "Horas" },
+    { value: time.minutes, label: "Minutos" },
+    { value: time.seconds, label: "Segundos" },
+  ];
 
   return (
-    <div className="relative bg-background min-h-screen">
-      <FloatingHearts />
+    <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
+      {blocks.map((b) => (
+        <div key={b.label} className="bg-card border border-border rounded-lg p-3 text-center">
+          <span className="text-2xl sm:text-3xl font-bold text-foreground font-body">{b.value}</span>
+          <p className="text-xs text-muted-foreground font-body mt-1">{b.label}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-      {/* Stories overlays */}
-      <AnimatePresence>
-        {storyPhase === "wrapped" && (
-          <WrappedStories
-            coupleNames={COUPLE_NAMES}
-            coupleDate={COUPLE_DATE}
-            onClose={() => setStoryPhase("timeline")}
-          />
-        )}
-        {storyPhase === "timeline" && (
-          <TimelineJourney
-            onClose={() => { setStoryPhase("none"); setHasSeenTimeline(true); }}
-            onNext={() => { setStoryPhase("none"); setHasSeenTimeline(true); }}
-          />
-        )}
-      </AnimatePresence>
+const Index = () => {
+  const [tipIndex, setTipIndex] = useState(0);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [showBanner, setShowBanner] = useState(true);
 
-      {/* ── SECTION 1: Hero ── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", duration: 0.8 }}
-          className="mb-6"
-        >
-          <div className="w-14 h-14 rounded-full bg-gradient-romantic flex items-center justify-center glow-primary">
-            <Heart className="w-7 h-7 text-primary-foreground fill-primary-foreground" />
-          </div>
+  return (
+    <div className="relative bg-background min-h-screen font-body">
+      {/* Top Banner */}
+      {showBanner && (
+        <div className="bg-primary text-primary-foreground text-center py-2 px-4 text-xs sm:text-sm font-body flex items-center justify-center relative">
+          <span>🎁 Hoje com <strong>50% OFF</strong> · Aproveite!</span>
+          <button onClick={() => setShowBanner(false)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-foreground/80 hover:text-primary-foreground">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Hero Section */}
+      <section className="min-h-[90vh] flex flex-col items-center justify-center px-4 text-center">
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", duration: 0.8 }}>
+          <Heart className="w-12 h-12 text-primary fill-primary mx-auto mb-4" />
         </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-sm uppercase tracking-[0.3em] text-foreground/70 font-body mb-2"
-        >
-          Nosso
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-xs uppercase tracking-[0.3em] text-primary font-body mb-1">
+          NOSSO
         </motion.p>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.7 }}
-          className="text-6xl sm:text-8xl font-romantic text-gradient-romantic leading-tight text-center"
-        >
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl sm:text-7xl font-romantic text-foreground leading-tight mb-2">
           Tempo Juntos
         </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="text-lg sm:text-xl text-foreground font-body font-light mt-2"
-        >
-          É O MELHOR <span className="font-semibold">PRESENTE</span>
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="mt-12 animate-bounce text-foreground/50"
-        >
-          <span className="text-xs font-body uppercase tracking-widest">Deslize para baixo</span>
-        </motion.div>
-      </section>
-
-      {/* ── SECTION 2: Photo Carousel ── */}
-      <section className="relative py-20 px-4 flex flex-col items-center">
-        <PhotoCarousel photos={STORY_PHOTOS} />
-      </section>
-
-      {/* ── SECTION 3: Spotify Player ── */}
-      <section className="relative py-24 px-4 flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-8"
-        >
-          <Music className="w-8 h-8 text-primary mx-auto mb-3" />
-          <h2 className="text-4xl sm:text-5xl font-romantic text-gradient-romantic">
-            Nossa Música
-          </h2>
-          <p className="text-sm text-foreground/50 font-body mt-2">
-            Aperte o play e reviva nossa história ✨
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mb-6">
+          <p className="text-lg text-primary font-body font-semibold">
+            É O MELHOR <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded">PRESENTE</span>
+          </p>
+          <p className="text-sm text-muted-foreground mt-3 max-w-sm mx-auto">
+            Crie um <strong className="text-foreground">QR Code</strong> exclusivo com todo o <strong className="text-foreground">tempo</strong> que você e seu amor estão <strong className="text-foreground">juntos</strong>
           </p>
         </motion.div>
-        <SpotifyPlayer
-          songName="Nossa Música Favorita"
-          artistName={COUPLE_NAMES}
-          onPlayTriggered={handlePlayTriggered}
-        />
 
-        {/* Deslize para baixo - appears after stories close */}
-        {hasSeenTimeline && storyPhase === "none" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-10 animate-bounce text-foreground/50"
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
+          <Link
+            to="/criar"
+            className="inline-block bg-primary hover:bg-primary/90 text-primary-foreground font-body font-bold text-base px-8 py-3 rounded-full transition-colors glow-primary"
           >
-            <span className="text-xs font-body uppercase tracking-widest">Deslize para baixo</span>
-          </motion.div>
-        )}
+            Criar minha página
+          </Link>
+          <p className="text-xs text-muted-foreground mt-3">+ de 17.000 páginas criadas</p>
+        </motion.div>
       </section>
 
-      {/* ── SECTION 4: Names ── */}
-      <section className="relative py-24 px-4 flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.8 }}
-          className="text-center"
-        >
-          <h2 className="text-5xl sm:text-7xl font-romantic text-gradient-romantic">
-            {COUPLE_NAMES}
-          </h2>
-          <p className="text-sm text-foreground/60 font-body mt-3 tracking-widest uppercase">
-            22 de julho de 2022
-          </p>
-          <div className="mt-6 flex justify-center">
+      {/* Como funciona */}
+      <section className="py-20 px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl sm:text-5xl font-romantic text-foreground">Como funciona?</h2>
+          <p className="text-sm text-muted-foreground font-body mt-2">São apenas <strong className="text-foreground">3 passos simples</strong></p>
+        </div>
+
+        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {[
+            { icon: Pen, step: "Passo 1", title: "Personalize", desc: "Adicione suas fotos, data especial e uma mensagem de amor." },
+            { icon: CreditCard, step: "Passo 2", title: "Finalize", desc: "Escolha o plano ideal e finalize o pagamento de forma segura." },
+            { icon: QrCode, step: "Passo 3", title: "Surpreenda!", desc: "Receba seu QR Code exclusivo e surpreenda quem você ama." },
+          ].map((item) => (
             <motion.div
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+              key={item.step}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-card border border-border rounded-2xl p-6 text-center"
             >
-              <Heart className="w-6 h-6 text-primary fill-primary" />
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <item.icon className="w-6 h-6 text-primary" />
+              </div>
+              <p className="text-xs text-muted-foreground font-body mb-1">{item.step}</p>
+              <h3 className="text-xl font-romantic text-foreground mb-2">{item.title}</h3>
+              <p className="text-sm text-muted-foreground font-body">{item.desc}</p>
             </motion.div>
-          </div>
-        </motion.div>
+          ))}
+        </div>
       </section>
 
-      {/* ── SECTION 5: Bodas ── */}
-      <section className="relative py-24 px-4 flex flex-col items-center">
-        <BodasTimeline />
-      </section>
+      {/* Histórias / Testimonials */}
+      <section className="py-20 px-4">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl sm:text-5xl font-romantic text-foreground">Histórias</h2>
+          <p className="text-sm text-muted-foreground font-body mt-2">O que nossos casais estão dizendo</p>
+        </div>
 
-      {/* ── SECTION 6: Love Message ── */}
-      <section className="relative py-24 px-4 flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-lg text-center"
-        >
-          <Heart className="w-8 h-8 text-primary fill-primary mx-auto mb-6" />
-          <div className="bg-card/40 backdrop-blur-md rounded-3xl p-8 sm:p-10 border border-border glow-primary">
-            <p className="text-foreground/90 font-body text-base sm:text-lg leading-relaxed italic">
-              "{LOVE_MESSAGE}"
-            </p>
+        <div className="max-w-md mx-auto relative">
+          <div className="bg-card border border-border rounded-2xl p-6 text-center min-h-[180px] flex flex-col items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3">
+              <span className="text-primary font-body font-bold text-sm">
+                {TESTIMONIALS[testimonialIndex].name.charAt(0)}
+              </span>
+            </div>
+            <p className="font-body font-semibold text-foreground text-sm">{TESTIMONIALS[testimonialIndex].name}</p>
+            <p className="text-xs text-muted-foreground font-body mb-3">{TESTIMONIALS[testimonialIndex].time}</p>
+            <p className="text-sm text-foreground/80 font-body italic mb-3">"{TESTIMONIALS[testimonialIndex].message}"</p>
+            <div className="flex gap-1">
+              {Array.from({ length: TESTIMONIALS[testimonialIndex].rating }).map((_, i) => (
+                <Heart key={i} className="w-4 h-4 text-primary fill-primary" />
+              ))}
+            </div>
           </div>
 
-          <p className="mt-16 text-xs text-foreground/30 font-body">
-            Feito com <Heart className="w-3 h-3 inline text-primary fill-primary" /> Tempo Juntos
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button onClick={() => setTestimonialIndex((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)} className="text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            {TESTIMONIALS.map((_, i) => (
+              <button key={i} onClick={() => setTestimonialIndex(i)} className={`h-1.5 rounded-full transition-all ${i === testimonialIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"}`} />
+            ))}
+            <button onClick={() => setTestimonialIndex((i) => (i + 1) % TESTIMONIALS.length)} className="text-muted-foreground hover:text-foreground">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Surpreenda / Tips */}
+      <section className="py-20 px-4">
+        <div className="text-center mb-10">
+          <Lightbulb className="w-8 h-8 text-primary mx-auto mb-2" />
+          <h2 className="text-4xl sm:text-5xl font-romantic text-foreground">Surpreenda</h2>
+          <p className="text-sm text-muted-foreground font-body mt-2">
+            <strong className="text-foreground">Dicas</strong> para tornar seu presente <strong className="text-foreground">ainda melhor</strong>
           </p>
-        </motion.div>
+        </div>
+
+        <div className="max-w-md mx-auto">
+          <div className="bg-primary rounded-2xl p-6 text-primary-foreground min-h-[140px]">
+            <h4 className="font-body font-bold text-base mb-2">{TIPS[tipIndex].title}</h4>
+            <p className="text-sm opacity-90 font-body leading-relaxed">{TIPS[tipIndex].description}</p>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button onClick={() => setTipIndex((i) => (i - 1 + TIPS.length) % TIPS.length)} className="text-muted-foreground hover:text-foreground">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            {TIPS.map((_, i) => (
+              <button key={i} onClick={() => setTipIndex(i)} className={`h-1.5 rounded-full transition-all ${i === tipIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"}`} />
+            ))}
+            <button onClick={() => setTipIndex((i) => (i + 1) % TIPS.length)} className="text-muted-foreground hover:text-foreground">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
       </section>
+
+      {/* Time Counter */}
+      <section className="py-20 px-4 text-center">
+        <h2 className="text-3xl sm:text-4xl font-romantic text-foreground mb-1">
+          A quanto <span className="text-primary">tempo</span>
+        </h2>
+        <h2 className="text-3xl sm:text-4xl font-romantic text-foreground mb-4">
+          estamos <strong className="text-primary">juntos</strong>?
+        </h2>
+        <p className="text-sm text-muted-foreground font-body mb-2">
+          Tenha essa resposta de uma forma
+        </p>
+        <p className="text-sm text-primary font-body font-semibold mb-8">única e surpreendente</p>
+
+        <TimeCounterLanding />
+
+        <Link
+          to="/criar"
+          className="inline-block mt-10 bg-primary hover:bg-primary/90 text-primary-foreground font-body font-bold text-base px-8 py-3 rounded-full transition-colors glow-primary"
+        >
+          Criar minha página
+        </Link>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-20 px-4">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl sm:text-5xl font-romantic text-foreground">Dúvidas?</h2>
+          <p className="text-sm text-muted-foreground font-body mt-2">Perguntas frequentes</p>
+        </div>
+
+        <div className="max-w-lg mx-auto">
+          <Accordion type="single" collapsible>
+            {FAQS.map((faq, i) => (
+              <AccordionItem key={i} value={`faq-${i}`} className="border-border">
+                <AccordionTrigger className="text-sm font-body text-foreground hover:no-underline">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground font-body">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-16 px-4">
+        <div className="max-w-lg mx-auto text-center">
+          <Heart className="w-8 h-8 text-primary fill-primary mx-auto mb-3" />
+          <h3 className="text-3xl font-romantic text-foreground mb-3">Tempo Juntos</h3>
+          <p className="text-xs text-muted-foreground font-body mb-8">
+            Um presente que celebra o tempo<br />ao lado de quem você ama.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left sm:text-center mb-8">
+            <div>
+              <h4 className="text-xs font-body font-bold text-foreground uppercase mb-2">Contato</h4>
+              <p className="text-xs text-muted-foreground font-body">suporte@tempojuntos.com</p>
+            </div>
+            <div>
+              <h4 className="text-xs font-body font-bold text-foreground uppercase mb-2">Links</h4>
+              <p className="text-xs text-muted-foreground font-body">Termos de uso e política de privacidade</p>
+            </div>
+            <div>
+              <h4 className="text-xs font-body font-bold text-foreground uppercase mb-2">Redes Sociais</h4>
+              <p className="text-xs text-muted-foreground font-body">Instagram · TikTok</p>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground/50 font-body">
+            Tempo Juntos © 2025. Todos os direitos reservados.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
