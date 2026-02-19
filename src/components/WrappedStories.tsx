@@ -411,20 +411,6 @@ const WrappedStories = ({ coupleNames, coupleDate, onClose }: WrappedStoriesProp
         <ChevronRight className="w-4 h-4" />
       </div>
 
-      {/* Floating playlist button */}
-      <motion.button
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.8, type: "spring" }}
-        onClick={(e) => {
-          e.stopPropagation();
-          fireConfetti();
-        }}
-        className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 bg-spotify hover:bg-spotify/90 text-spotify-foreground font-body font-bold text-sm px-6 py-3 rounded-full shadow-lg glow-spotify transition-colors flex items-center gap-2"
-      >
-        <Music className="w-4 h-4" />
-        Nossa Playlist
-      </motion.button>
     </motion.div>
   );
 };
