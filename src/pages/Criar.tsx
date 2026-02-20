@@ -251,7 +251,10 @@ const Criar = () => {
         const { error: uploadError } = await supabase.storage
           .from('couple-photos')
           .upload(filePath, photo.file, { contentType: photo.file.type });
-        if (uploadError) { console.error("Upload error:", uploadError); continue; }
+        if (uploadError) {
+          console.error("Upload error:", JSON.stringify(uploadError));
+          throw new Error(`Erro no upload da foto: ${uploadError.message}`);
+        }
         const { data: urlData } = supabase.storage.from('couple-photos').getPublicUrl(filePath);
         photoUrls.push(urlData.publicUrl);
         photoIdToUrl[photo.id] = urlData.publicUrl;
