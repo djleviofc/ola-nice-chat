@@ -223,6 +223,8 @@ const Criar = () => {
     } else if (s === 3) {
       const valid = journeyEvents.filter((j) => j.title.trim());
       if (valid.length === 0) errs.journey = "Adicione pelo menos 1 evento.";
+      const missingPhoto = valid.find((j) => !j.photoId);
+      if (missingPhoto) errs.journey = `O momento "${missingPhoto.title}" precisa de uma foto associada.`;
     } else if (s === 4) {
       if (!musicaUrl.trim()) errs.musica = "A música é obrigatória para a experiência dos Stories.";
     }
@@ -573,31 +575,73 @@ const Criar = () => {
                         className="form-input"
                       />
 
-                      {/* Photo assignment */}
-                      {photos.length > 0 && (
-                        <div>
-                          <p className="text-xs text-muted-foreground font-body mb-1.5">Foto associada (opcional)</p>
-                          <div className="flex gap-2 overflow-x-auto pb-1">
-                            <button
-                              type="button"
-                              onClick={() => updateJourney(j.id, "photoId", "")}
-                              className={`flex-shrink-0 w-12 h-12 rounded-lg border-2 flex items-center justify-center transition-all ${!j.photoId ? "border-primary bg-primary/10" : "border-border"}`}
-                            >
-                              <X className="w-4 h-4 text-muted-foreground" />
-                            </button>
-                            {photos.map((p) => (
-                              <button
-                                key={p.id}
-                                type="button"
-                                onClick={() => updateJourney(j.id, "photoId", p.id)}
-                                className={`flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${j.photoId === p.id ? "border-primary ring-2 ring-primary/50" : "border-border"}`}
-                              >
-                                <img src={p.url} alt="" className="w-full h-full object-cover" />
-                              </button>
-                            ))}
+                      {/* Photo assignment — obrigatório */}
+                      <div>
+                        <p className="text-xs font-body mb-2 flex items-center gap-1">
+                          <span className="text-destructive font-bold">*</span>
+                          <span className="text-muted-foreground">Foto do momento</span>
+                          {!j.photoId && <span className="text-destructive text-[10px] ml-1">(obrigatório)</span>}
+                          {j.photoId && <span className="text-primary text-[10px] ml-1">✓ selecionada</span>}
+                        </p>
+
+                        {photos.length === 0 ? (
+                          <div className="rounded-xl border-2 border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+                            Adicione fotos na etapa anterior para selecionar aqui.
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <>
+                            {/* Large preview of selected photo */}
+                            {j.photoId && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="relative mb-3 rounded-2xl overflow-hidden border-2 border-primary glow-primary"
+                                style={{ aspectRatio: "16/9" }}
+                              >
+                                <img
+                                  src={photos.find((p) => p.id === j.photoId)?.url}
+                                  alt="Foto selecionada"
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+                                <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-[10px] font-body font-bold px-2 py-0.5 rounded-full">
+                                  Selecionada
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => updateJourney(j.id, "photoId", "")}
+                                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/80 flex items-center justify-center hover:bg-destructive transition-colors"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </motion.div>
+                            )}
+
+                            {/* Thumbnail selector */}
+                            <div className="grid grid-cols-4 gap-2">
+                              {photos.map((p) => (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onClick={() => updateJourney(j.id, "photoId", p.id)}
+                                  className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                                    j.photoId === p.id
+                                      ? "border-primary ring-2 ring-primary/50 scale-95"
+                                      : "border-border hover:border-primary/50"
+                                  }`}
+                                >
+                                  <img src={p.url} alt="" className="w-full h-full object-cover" />
+                                  {j.photoId === p.id && (
+                                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                      <Check className="w-4 h-4 text-primary" />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </motion.div>
                   ))}
                 </div>
