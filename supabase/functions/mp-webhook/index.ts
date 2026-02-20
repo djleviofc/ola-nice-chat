@@ -148,6 +148,30 @@ serve(async (req) => {
     );
 
     const url = new URL(req.url);
+
+    // ── Manual resend route: POST /mp-webhook?action=resend&order_id=xxx ──
+    if (url.searchParams.get("action") === "resend") {
+      const orderId = url.searchParams.get("order_id");
+      if (!orderId) {
+        return new Response(JSON.stringify({ error: "order_id required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const { data: order } = await supabase
+        .from("orders")
+        .select("id, email, nome_cliente, nome_parceiro, slug, titulo_pagina, page_active")
+        .eq("id", orderId)
+        .single();
+      if (!order) {
+        return new Response(JSON.stringify({ error: "Order not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if (RESEND_API_KEY) {
+        await sendConfirmationEmail(RESEND_API_KEY, order.email, order.nome_cliente, order.nome_parceiro, order.slug, order.titulo_pagina);
+        console.log("✅ Email resent for order:", orderId);
+        return new Response(JSON.stringify({ ok: true, message: "Email reenviado!" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      return new Response(JSON.stringify({ error: "RESEND_API_KEY not set" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // ── Normal webhook flow ──
     const topicParam = url.searchParams.get("topic");
     const idParam = url.searchParams.get("id");
 
@@ -173,6 +197,8 @@ serve(async (req) => {
       paymentId = String((body.data as Record<string, unknown>).id);
     } else if (body.payment_id) {
       paymentId = String(body.payment_id);
+    } else if (typeof body.id === "number" || typeof body.id === "string") {
+      paymentId = String(body.id);
     }
 
     if (!paymentId) {
@@ -189,7 +215,7 @@ serve(async (req) => {
       headers: { "Authorization": `Bearer ${MERCADOPAGO_ACCESS_TOKEN}` },
     });
     const payment = await mpResponse.json();
-    console.log("Payment:", { id: payment.id, status: payment.status, preference_id: payment.preference_id });
+    console.log("Payment:", { id: payment.id, status: payment.status, preference_id: payment.preference_id, external_reference: payment.external_reference });
 
     if (payment.status === "approved") {
       const preferenceId = payment.preference_id;
@@ -214,14 +240,19 @@ serve(async (req) => {
       }
 
       if (!order) {
-        console.error("Order not found for preference:", preferenceId);
+        console.error("Order not found for preference:", preferenceId, "external_reference:", payment.external_reference);
         return new Response(JSON.stringify({ ok: true }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      // Only activate and send email if not already active (avoid duplicate emails)
+      // Always save payment_id even if already active
+      await supabase
+        .from("orders")
+        .update({ payment_id: String(paymentId) })
+        .eq("id", order.id);
+
       if (!order.page_active) {
         const { error: updateError } = await supabase
           .from("orders")
@@ -238,7 +269,6 @@ serve(async (req) => {
         } else {
           console.log("✅ Order activated:", order.id);
 
-          // Send confirmation email with QR code
           if (RESEND_API_KEY) {
             try {
               await sendConfirmationEmail(
@@ -257,7 +287,7 @@ serve(async (req) => {
           }
         }
       } else {
-        console.log("Order already active, skipping:", order.id);
+        console.log("Order already active, skipping activation:", order.id);
       }
     }
 
