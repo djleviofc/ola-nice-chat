@@ -147,13 +147,17 @@ const Criar = () => {
     setMusicSearching(true);
     setMusicResults([]);
     try {
-      const res = await fetch(
-        `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&entity=song&limit=12&country=BR`
-      );
-      const data = await res.json();
-      const tracks = (data.results || []).filter((t: ItunesTrack) => t.previewUrl);
+      const { data, error } = await supabase.functions.invoke("search-music", {
+        body: { query: q.trim() },
+      });
+      if (error) throw error;
+      const tracks = (data?.results || []) as ItunesTrack[];
       setMusicResults(tracks);
-    } catch {
+      if (tracks.length === 0) {
+        toast({ title: "Nenhuma música encontrada", description: "Tente outro nome ou artista." });
+      }
+    } catch (err) {
+      console.error("searchMusic error:", err);
       toast({ title: "Erro na busca", description: "Tente novamente.", variant: "destructive" });
     } finally {
       setMusicSearching(false);
