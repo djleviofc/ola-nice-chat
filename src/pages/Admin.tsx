@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Lock, Eye, CheckCircle, Clock, XCircle, ExternalLink, RefreshCw } from "lucide-react";
+import { Lock, Eye, CheckCircle, Clock, ExternalLink, RefreshCw, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Order {
@@ -63,6 +63,21 @@ const Admin = () => {
       fetchOrders();
     } catch {
       toast({ title: "Erro ao ativar", variant: "destructive" });
+    }
+  };
+
+  const resendEmail = async (orderId: string) => {
+    try {
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/mp-webhook?action=resend&order_id=${orderId}`,
+        { method: "POST", headers: { "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast({ title: "Email reenviado! ✉️" });
+    } catch (e: unknown) {
+      toast({ title: `Erro ao reenviar: ${e instanceof Error ? e.message : "erro"}`, variant: "destructive" });
     }
   };
 
@@ -175,7 +190,7 @@ const Admin = () => {
                           {badge.label}
                         </span>
                         {order.page_active && (
-                          <span className="ml-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+                          <span className="ml-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary">
                             Ativa
                           </span>
                         )}
@@ -195,6 +210,16 @@ const Admin = () => {
                             >
                               <ExternalLink className="w-4 h-4" />
                             </a>
+                          )}
+                          {order.page_active && (
+                            <button
+                              onClick={() => resendEmail(order.id)}
+                              className="text-xs bg-secondary hover:bg-secondary/80 text-secondary-foreground px-2 py-1.5 rounded-lg transition-colors font-medium flex items-center gap-1"
+                              title="Reenviar email"
+                            >
+                              <Mail className="w-3 h-3" />
+                              Email
+                            </button>
                           )}
                           {!order.page_active && (
                             <button
