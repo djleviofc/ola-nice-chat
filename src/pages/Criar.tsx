@@ -576,12 +576,13 @@ const Criar = () => {
                       />
 
                       {/* Photo assignment — obrigatório */}
-                      <div>
-                        <p className="text-xs font-body mb-2 flex items-center gap-1">
-                          <span className="text-destructive font-bold">*</span>
-                          <span className="text-muted-foreground">Foto do momento</span>
-                          {!j.photoId && <span className="text-destructive text-[10px] ml-1">(obrigatório)</span>}
-                          {j.photoId && <span className="text-primary text-[10px] ml-1">✓ selecionada</span>}
+                      <div className={`rounded-xl p-3 border-2 transition-colors ${!j.photoId ? "border-destructive/40 bg-destructive/5" : "border-primary/30 bg-primary/5"}`}>
+                        <p className="text-xs font-body font-semibold mb-2 flex items-center gap-1.5">
+                          <span className="text-destructive">★</span>
+                          <span className="text-foreground">Foto do momento</span>
+                          <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full ${!j.photoId ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>
+                            {!j.photoId ? "OBRIGATÓRIO" : "✓ OK"}
+                          </span>
                         </p>
 
                         {photos.length === 0 ? (
