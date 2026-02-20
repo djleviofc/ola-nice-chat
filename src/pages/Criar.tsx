@@ -25,6 +25,7 @@ interface ItunesTrack {
   artworkUrl100: string;
   previewUrl: string;
   collectionName: string;
+  youtubeVideoId?: string | null;
 }
 
 interface PhotoPreview {
@@ -185,7 +186,12 @@ const Criar = () => {
     setPlayingId(null);
     setPreviewAudio(null);
     setSelectedTrack(track);
-    setMusicaUrl(track.previewUrl);
+    // Use YouTube full URL if available, otherwise fall back to iTunes 30s preview
+    if (track.youtubeVideoId) {
+      setMusicaUrl(`https://www.youtube.com/watch?v=${track.youtubeVideoId}`);
+    } else {
+      setMusicaUrl(track.previewUrl);
+    }
     clearError("musica");
   };
 
@@ -778,7 +784,7 @@ const Criar = () => {
                 {/* Results */}
                 {musicResults.length > 0 && !selectedTrack && (
                   <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground font-body px-1">{musicResults.length} músicas encontradas — toque ▶ para ouvir 30s</p>
+                    <p className="text-xs text-muted-foreground font-body px-1">{musicResults.length} músicas encontradas — toque ▶ para ouvir o preview · música completa via YouTube</p>
                     {musicResults.map((track) => (
                       <motion.div
                         key={track.trackId}
