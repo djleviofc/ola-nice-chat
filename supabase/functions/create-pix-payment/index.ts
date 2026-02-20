@@ -46,9 +46,9 @@ serve(async (req) => {
         installments: 1,
       },
       back_urls: {
-        success: "https://momentodeamor.lovable.app/pagamento-sucesso",
-        failure: "https://momentodeamor.lovable.app/criar?status=failure",
-        pending: "https://momentodeamor.lovable.app/criar?status=pending",
+        success: "https://momentodeamor.com.br/pagamento-sucesso",
+        failure: "https://momentodeamor.com.br/criar?status=failure",
+        pending: "https://momentodeamor.com.br/criar?status=pending",
       },
       auto_return: "approved",
       notification_url: `https://ymrmbwvdwxtdnxdfraza.supabase.co/functions/v1/mp-webhook`,
