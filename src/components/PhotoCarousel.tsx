@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface PhotoCarouselProps {
   photos: { src: string; alt: string }[];
@@ -8,62 +8,116 @@ interface PhotoCarouselProps {
 
 const PhotoCarousel = ({ photos, autoPlayInterval = 4000 }: PhotoCarouselProps) => {
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     if (photos.length <= 1) return;
     const timer = setInterval(() => {
-      setDirection(1);
       setCurrent((c) => (c + 1) % photos.length);
     }, autoPlayInterval);
     return () => clearInterval(timer);
   }, [photos.length, autoPlayInterval]);
 
+  const getIndex = (offset: number) =>
+    (current + offset + photos.length) % photos.length;
+
   const goTo = (index: number) => {
     if (index === current) return;
-    setDirection(index > current ? 1 : -1);
     setCurrent(index);
   };
 
-  const variants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? "100%" : "-100%",
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
+  const prev = getIndex(-1);
+  const next = getIndex(1);
+
+  const cards = [
+    { index: prev, position: "left" as const },
+    { index: current, position: "center" as const },
+    { index: next, position: "right" as const },
+  ];
+
+  const positionStyles = {
+    left: {
+      left: "0%",
+      top: "50%",
+      translateX: "0%",
+      translateY: "-50%",
+      rotateY: 25,
+      scale: 0.8,
+      opacity: 0.6,
+      zIndex: 1,
+      width: "40%",
     },
-    exit: (dir: number) => ({
-      x: dir > 0 ? "-100%" : "100%",
-      opacity: 0,
-    }),
+    center: {
+      left: "50%",
+      top: "50%",
+      translateX: "-50%",
+      translateY: "-50%",
+      rotateY: 0,
+      scale: 1,
+      opacity: 1,
+      zIndex: 10,
+      width: "50%",
+    },
+    right: {
+      right: "0%",
+      left: "auto",
+      top: "50%",
+      translateX: "0%",
+      translateY: "-50%",
+      rotateY: -25,
+      scale: 0.8,
+      opacity: 0.6,
+      zIndex: 1,
+      width: "40%",
+    },
   };
 
   return (
     <div className="w-full flex flex-col items-center">
       <div
-        className="relative overflow-hidden rounded-2xl shadow-2xl border border-primary/20 glow-primary"
-        style={{ width: "clamp(200px, 60vw, 320px)", aspectRatio: "9/14" }}
+        className="relative w-full max-w-3xl mx-auto"
+        style={{ perspective: "1200px", height: "clamp(300px, 50vw, 450px)" }}
       >
-        <AnimatePresence custom={direction} mode="wait">
-          <motion.div
-            key={current}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0"
-          >
-            <img
-              src={photos[current].src}
-              alt={photos[current].alt}
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-        </AnimatePresence>
+        {cards.map(({ index, position }) => {
+          const styles = positionStyles[position];
+          const isCenter = position === "center";
+
+          return (
+            <motion.div
+              key={`${position}-${index}`}
+              className={`absolute ${isCenter ? "" : "cursor-pointer"}`}
+              style={{
+                transformStyle: "preserve-3d",
+                top: styles.top,
+                zIndex: styles.zIndex,
+                ...(position === "right"
+                  ? { right: 0 }
+                  : { left: styles.left }),
+              }}
+              animate={{
+                rotateY: styles.rotateY,
+                scale: styles.scale,
+                opacity: styles.opacity,
+                y: "-50%",
+                ...(position === "center" ? { x: "-50%" } : {}),
+              }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              onClick={isCenter ? undefined : () => goTo(index)}
+            >
+              <div
+                className={`aspect-[9/14] overflow-hidden rounded-2xl shadow-2xl ${
+                  isCenter ? "border-2 border-primary/40 glow-primary" : ""
+                }`}
+                style={{ width: styles.width === "50%" ? "clamp(180px, 25vw, 280px)" : "clamp(140px, 20vw, 220px)" }}
+              >
+                <img
+                  src={photos[index].src}
+                  alt={photos[index].alt}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Dots */}
