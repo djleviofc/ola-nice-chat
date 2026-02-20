@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Music, Star } from "lucide-react";
 import FloatingHearts from "@/components/FloatingHearts";
@@ -28,16 +28,26 @@ const STORY_PHOTOS = [
   { src: story3, alt: "Nosso momento 3" },
 ];
 
-type StoryPhase = "none" | "wrapped" | "timeline";
+type StoryPhase = "none" | "countdown" | "wrapped" | "timeline";
 
 const Index = () => {
   const [storyPhase, setStoryPhase] = useState<StoryPhase>("none");
   const [hasSeenTimeline, setHasSeenTimeline] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    if (storyPhase !== "countdown") return;
+    if (countdown <= 0) {
+      setStoryPhase("wrapped");
+      return;
+    }
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [storyPhase, countdown]);
 
   const handlePlayTriggered = () => {
-    setTimeout(() => {
-      setStoryPhase("wrapped");
-    }, 5000);
+    setCountdown(5);
+    setStoryPhase("countdown");
   };
 
   return (
@@ -46,6 +56,77 @@ const Index = () => {
 
       {/* Stories overlays */}
       <AnimatePresence>
+        {storyPhase === "countdown" && (
+          <motion.div
+            key="countdown"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+            style={{ background: "radial-gradient(ellipse at center, hsl(var(--primary)/0.18) 0%, hsl(var(--background)) 70%)" }}
+          >
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute text-primary/20"
+                style={{ left: `${10 + i * 12}%`, top: `${20 + (i % 3) * 25}%` }}
+                animate={{ y: [0, -20, 0], scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 2.5 + i * 0.3, repeat: Infinity, delay: i * 0.4 }}
+              >
+                <Heart className="fill-primary" style={{ width: 20 + i * 6, height: 20 + i * 6 }} />
+              </motion.div>
+            ))}
+            <div className="relative flex items-center justify-center mb-8">
+              <motion.div
+                className="absolute rounded-full border-2 border-primary/30"
+                animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0, 0.4] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                style={{ width: 200, height: 200 }}
+              />
+              <motion.div
+                className="absolute rounded-full border border-primary/20"
+                animate={{ scale: [1, 2, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 1, repeat: Infinity, delay: 0.3 }}
+                style={{ width: 200, height: 200 }}
+              />
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={countdown}
+                  initial={{ scale: 1.8, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.4, opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="text-[9rem] font-romantic text-gradient-romantic leading-none"
+                >
+                  {countdown}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            <motion.div
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="mb-6"
+            >
+              <Heart className="w-8 h-8 text-primary fill-primary" />
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-foreground/60 font-romantic text-2xl text-center"
+            >
+              Preparando algo especial…
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="text-foreground/30 font-body text-xs uppercase tracking-[0.3em] mt-3"
+            >
+              para vocês dois ♡
+            </motion.p>
+          </motion.div>
+        )}
         {storyPhase === "wrapped" && (
           <WrappedStories
             coupleNames={COUPLE_NAMES}
