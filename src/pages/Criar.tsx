@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, Upload, X, Sparkles, Loader2, ArrowLeft, ArrowRight,
   Music, Image as ImageIcon, Calendar, Mail, User, Type, FileText,
-  Plus, Trash2, Check
+  Plus, Trash2, Check, Search
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,15 @@ const MAX_PHOTOS = 10;
 const MAX_MESSAGE_LENGTH = 10000;
 
 const EMOJI_OPTIONS = ["💕", "💋", "🏠", "✈️", "💍", "🎓", "🎂", "🐾", "👶", "🎄", "🌅", "🎵", "📸", "🌟", "🎉", "❤️‍🔥"];
+
+interface ItunesTrack {
+  trackId: number;
+  trackName: string;
+  artistName: string;
+  artworkUrl100: string;
+  previewUrl: string;
+  collectionName: string;
+}
 
 interface PhotoPreview {
   id: string;
@@ -126,6 +135,55 @@ const Criar = () => {
 
   // Step 5: Music
   const [musicaUrl, setMusicaUrl] = useState("");
+  const [musicQuery, setMusicQuery] = useState("");
+  const [musicResults, setMusicResults] = useState<ItunesTrack[]>([]);
+  const [musicSearching, setMusicSearching] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<ItunesTrack | null>(null);
+  const [previewAudio, setPreviewAudio] = useState<HTMLAudioElement | null>(null);
+  const [playingId, setPlayingId] = useState<number | null>(null);
+
+  const searchMusic = async (q: string) => {
+    if (!q.trim()) return;
+    setMusicSearching(true);
+    setMusicResults([]);
+    try {
+      const res = await fetch(
+        `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&entity=song&limit=12&country=BR`
+      );
+      const data = await res.json();
+      const tracks = (data.results || []).filter((t: ItunesTrack) => t.previewUrl);
+      setMusicResults(tracks);
+    } catch {
+      toast({ title: "Erro na busca", description: "Tente novamente.", variant: "destructive" });
+    } finally {
+      setMusicSearching(false);
+    }
+  };
+
+  const togglePreview = (track: ItunesTrack) => {
+    if (playingId === track.trackId) {
+      previewAudio?.pause();
+      setPlayingId(null);
+      setPreviewAudio(null);
+      return;
+    }
+    previewAudio?.pause();
+    const audio = new Audio(track.previewUrl);
+    audio.loop = false;
+    audio.play().catch(() => {});
+    audio.onended = () => { setPlayingId(null); setPreviewAudio(null); };
+    setPreviewAudio(audio);
+    setPlayingId(track.trackId);
+  };
+
+  const selectTrack = (track: ItunesTrack) => {
+    previewAudio?.pause();
+    setPlayingId(null);
+    setPreviewAudio(null);
+    setSelectedTrack(track);
+    setMusicaUrl(track.previewUrl);
+    clearError("musica");
+  };
 
   const updateCouple = (field: string, value: string) => {
     setCoupleData((prev) => ({ ...prev, [field]: value }));
@@ -226,7 +284,7 @@ const Criar = () => {
       const missingPhoto = valid.find((j) => !j.photoId);
       if (missingPhoto) errs.journey = `O momento "${missingPhoto.title}" precisa de uma foto associada.`;
     } else if (s === 4) {
-      if (!musicaUrl.trim()) errs.musica = "A música é obrigatória para a experiência dos Stories.";
+      if (!musicaUrl.trim()) errs.musica = "Pesquise e escolha a música do casal para continuar.";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -658,24 +716,103 @@ const Criar = () => {
               </div>
             )}
 
-            {/* ── Step 4: Music (required) ── */}
+            {/* ── Step 4: Music ── */}
             {step === 4 && (
               <div className="space-y-6">
-                <div className="bg-card/60 backdrop-blur-sm rounded-2xl border border-border p-6 text-center">
-                  <Music className="w-10 h-10 text-primary mx-auto mb-4" />
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Cole o link da música que é a cara de vocês. Pode ser do Spotify, YouTube ou qualquer plataforma.
-                  </p>
-                  <input
-                    type="url"
-                    value={musicaUrl}
-                    onChange={(e) => setMusicaUrl(e.target.value)}
-                    placeholder="https://open.spotify.com/track/..."
-                    className="form-input text-center"
-                  />
-                  {errors.musica && <p className="text-xs text-destructive mt-2">{errors.musica}</p>}
-                  <p className="text-xs text-muted-foreground mt-2">Obrigatório — a música toca ao iniciar os Stories</p>
-                </div>
+                {/* Selected track card */}
+                {selectedTrack ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-primary/10 border border-primary/30 rounded-2xl p-4 flex items-center gap-4"
+                  >
+                    <img src={selectedTrack.artworkUrl100} alt="" className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-foreground font-semibold text-sm truncate">{selectedTrack.trackName}</p>
+                      <p className="text-muted-foreground text-xs truncate">{selectedTrack.artistName}</p>
+                      <p className="text-primary text-xs mt-1">✓ Música selecionada</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedTrack(null); setMusicaUrl(""); }}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </motion.div>
+                ) : (
+                  <div className="bg-card/60 backdrop-blur-sm rounded-2xl border border-border p-5">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Music className="w-8 h-8 text-primary flex-shrink-0" />
+                      <p className="text-sm text-muted-foreground">
+                        Pesquise o nome da música ou artista para encontrar a canção de vocês.
+                      </p>
+                    </div>
+
+                    {/* Search input */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={musicQuery}
+                        onChange={(e) => setMusicQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && searchMusic(musicQuery)}
+                        placeholder="Ex: Perfect Ed Sheeran, Evidências..."
+                        className="form-input flex-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => searchMusic(musicQuery)}
+                        disabled={musicSearching || !musicQuery.trim()}
+                        className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-sm flex items-center gap-2 disabled:opacity-50 transition-colors hover:bg-primary/90"
+                      >
+                        {musicSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Results */}
+                {musicResults.length > 0 && !selectedTrack && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground font-body px-1">{musicResults.length} músicas encontradas — toque ▶ para ouvir 30s</p>
+                    {musicResults.map((track) => (
+                      <motion.div
+                        key={track.trackId}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-3 bg-card border border-border rounded-xl p-3 hover:border-primary/40 transition-colors"
+                      >
+                        <img src={track.artworkUrl100} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-foreground font-semibold text-sm truncate">{track.trackName}</p>
+                          <p className="text-muted-foreground text-xs truncate">{track.artistName}</p>
+                        </div>
+                        {/* Preview button */}
+                        <button
+                          type="button"
+                          onClick={() => togglePreview(track)}
+                          className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-primary hover:border-primary transition-colors flex-shrink-0"
+                        >
+                          {playingId === track.trackId ? (
+                            <span className="text-base leading-none">⏸</span>
+                          ) : (
+                            <span className="text-base leading-none">▶</span>
+                          )}
+                        </button>
+                        {/* Select button */}
+                        <button
+                          type="button"
+                          onClick={() => selectTrack(track)}
+                          className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground font-body font-bold text-xs flex-shrink-0 hover:bg-primary/90 transition-colors"
+                        >
+                          Escolher
+                        </button>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {errors.musica && <p className="text-xs text-destructive text-center">{errors.musica}</p>}
 
                 {/* Summary */}
                 <div className="bg-card border border-border rounded-2xl p-5">
@@ -689,7 +826,7 @@ const Criar = () => {
                     <SummaryRow label="Fotos" value={`${photos.length} foto${photos.length !== 1 ? "s" : ""}`} />
                     <SummaryRow label="Mensagem" value={`${mensagem.length} caracteres`} />
                     <SummaryRow label="Momentos" value={`${journeyEvents.filter((j) => j.title.trim()).length} momento${journeyEvents.filter((j) => j.title.trim()).length !== 1 ? "s" : ""}`} />
-                    <SummaryRow label="Música" value={musicaUrl ? "✓ Adicionada" : "Sem música"} />
+                    <SummaryRow label="Música" value={selectedTrack ? `${selectedTrack.trackName} — ${selectedTrack.artistName}` : "Não selecionada"} />
                     <div className="flex items-center justify-between pt-2 mt-1">
                       <span className="font-body font-bold text-foreground text-sm">Total</span>
                       <span className="font-body font-bold text-primary text-base">R$ 14,99</span>
@@ -698,6 +835,7 @@ const Criar = () => {
                 </div>
               </div>
             )}
+
           </motion.div>
         </AnimatePresence>
 
