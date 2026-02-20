@@ -6,8 +6,9 @@ import {
   Music, Image as ImageIcon, Calendar, Mail, User, Type, FileText,
   Plus, Trash2, Check
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import CheckoutTransparente from "@/components/CheckoutTransparente";
 
 const API_BASE = "https://qrflash.greensyst.com.br";
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -92,12 +93,16 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
 /* ══════════════════════════════════════════════════ */
 const Criar = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [savedOrderId, setSavedOrderId] = useState<string | null>(null);
+  const [savedSlug, setSavedSlug] = useState<string | null>(null);
+
 
   // Step 1: Couple info
   const [coupleData, setCoupleData] = useState({
@@ -230,15 +235,14 @@ const Criar = () => {
   };
   const prevStep = () => setStep((s) => Math.max(s - 1, 0));
 
-  /* ── Submit ── */
+  /* ── Submit: save order then show transparent checkout ── */
   const handleSubmit = async () => {
     if (!validateStep(step)) return;
     setIsSubmitting(true);
     try {
-      // Generate unique slug
       const slug = `${coupleData.titulo_pagina.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now().toString(36)}`;
 
-      // Upload photos to Supabase Storage
+      // Upload photos
       const photoUrls: string[] = [];
       const photoIdToUrl: Record<string, string> = {};
       for (const photo of photos) {
@@ -247,42 +251,14 @@ const Criar = () => {
         const { error: uploadError } = await supabase.storage
           .from('couple-photos')
           .upload(filePath, photo.file, { contentType: photo.file.type });
-        if (uploadError) {
-          console.error("Upload error:", uploadError);
-          continue;
-        }
-        const { data: urlData } = supabase.storage
-          .from('couple-photos')
-          .getPublicUrl(filePath);
+        if (uploadError) { console.error("Upload error:", uploadError); continue; }
+        const { data: urlData } = supabase.storage.from('couple-photos').getPublicUrl(filePath);
         photoUrls.push(urlData.publicUrl);
         photoIdToUrl[photo.id] = urlData.publicUrl;
       }
 
-      // Create payment preference
-      const { data: paymentData, error: paymentError } = await supabase.functions.invoke("create-pix-payment", {
-        body: {
-          amount: 1499,
-          description: `Momentos de Amor - ${coupleData.titulo_pagina}`,
-          customer: {
-            name: coupleData.nome_cliente.trim(),
-            email: coupleData.email.trim(),
-          },
-          metadata: {
-            slug,
-            nome_cliente: coupleData.nome_cliente.trim(),
-            nome_parceiro: coupleData.nome_parceiro.trim(),
-            titulo: coupleData.titulo_pagina.trim(),
-          },
-        },
-      });
-
-      if (paymentError) throw paymentError;
-      if (!paymentData?.success || !paymentData?.checkout_url) {
-        throw new Error(paymentData?.error || "Erro ao criar pagamento");
-      }
-
-      // Save order to database
-      const { error: insertError } = await supabase.from("orders").insert({
+      // Insert order (page_active = false until payment)
+      const { data: insertData, error: insertError } = await supabase.from("orders").insert({
         slug,
         nome_cliente: coupleData.nome_cliente.trim(),
         nome_parceiro: coupleData.nome_parceiro.trim(),
@@ -292,35 +268,56 @@ const Criar = () => {
         mensagem: mensagem.trim(),
         musica_url: musicaUrl.trim(),
         fotos: photoUrls.map((url, i) => ({ url, alt: `Foto ${i + 1}` })),
-        journey_events: journeyEvents.filter(j => j.title.trim()).map(j => {
-          const matchedUrl = j.photoId ? photoIdToUrl[j.photoId] : undefined;
-          return {
-            emoji: j.emoji,
-            title: j.title,
-            date: `${j.month} ${j.year}`,
-            description: j.description,
-            photo: matchedUrl || undefined,
-          };
-        }),
-        payment_preference_id: paymentData.preference_id,
+        journey_events: journeyEvents.filter(j => j.title.trim()).map(j => ({
+          emoji: j.emoji,
+          title: j.title,
+          date: `${j.month} ${j.year}`,
+          description: j.description,
+          photo: j.photoId ? photoIdToUrl[j.photoId] : undefined,
+        })),
         amount: 1499,
-      } as any);
+      } as any).select("id").single();
 
-      if (insertError) {
-        console.error("Error saving order:", insertError);
-        // Continue to checkout even if save fails
-      }
+      if (insertError) throw insertError;
 
-      window.location.href = paymentData.checkout_url;
+      setSavedOrderId(insertData.id);
+      setSavedSlug(slug);
+      setShowCheckout(true);
     } catch (err) {
-      console.error("Payment error:", err);
-      toast({ title: "Erro ao gerar pagamento", description: "Tente novamente.", variant: "destructive" });
+      console.error("Submit error:", err);
+      toast({ title: "Erro ao salvar pedido", description: "Tente novamente.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const isLastStep = step === STEPS.length - 1;
+
+  if (showCheckout && savedOrderId) {
+    return (
+      <div className="relative bg-background min-h-screen font-body">
+        <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-primary fill-primary" />
+              <span className="font-romantic text-lg text-foreground">Momentos de Amor</span>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-lg mx-auto px-4 py-8">
+          <CheckoutTransparente
+            orderId={savedOrderId}
+            amount={1499}
+            description={`Momentos de Amor - ${coupleData.titulo_pagina}`}
+            customerName={coupleData.nome_cliente}
+            customerEmail={coupleData.email}
+            onSuccess={() => navigate("/pagamento-sucesso")}
+            onBack={() => setShowCheckout(false)}
+          />
+        </div>
+      </div>
+    );
+  }
 
 
 
@@ -689,7 +686,7 @@ const Criar = () => {
         </div>
 
         <p className="text-center text-xs text-muted-foreground pb-8">
-          {isLastStep ? "Ao continuar, você será redirecionado para o pagamento seguro via PIX." : `Etapa ${step + 1} de ${STEPS.length}`}
+          {isLastStep ? "Ao continuar, você escolherá pagar via PIX ou cartão de crédito." : `Etapa ${step + 1} de ${STEPS.length}`}
         </p>
       </div>
     </div>
