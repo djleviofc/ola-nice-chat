@@ -9,6 +9,7 @@ import Criar from "./pages/Criar";
 import Admin from "./pages/Admin";
 import PageView from "./pages/PageView";
 import Termos from "./pages/Termos";
+import PagamentoSucesso from "./pages/PagamentoSucesso";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/admin" element={<Admin />} />
           <Route path="/p/:slug" element={<PageView />} />
           <Route path="/termos" element={<Termos />} />
+          <Route path="/pagamento-sucesso" element={<PagamentoSucesso />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
