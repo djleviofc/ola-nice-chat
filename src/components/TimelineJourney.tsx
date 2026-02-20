@@ -152,7 +152,7 @@ const TimelineItem = ({
           <h3 className="text-foreground font-body font-bold text-base sm:text-lg leading-snug">
             {event.title}
           </h3>
-          <p className="text-foreground/60 font-body text-sm mt-1 italic">
+          <p className="text-foreground/80 font-body text-sm mt-1 italic">
             {event.description}
           </p>
         </div>
@@ -198,7 +198,7 @@ const TimelineItemMobile = ({
     <h3 className="text-foreground font-body font-bold text-base leading-snug">
       {event.title}
     </h3>
-    <p className="text-foreground/60 font-body text-sm mt-1 italic">
+    <p className="text-foreground/80 font-body text-sm mt-1 italic">
       {event.description}
     </p>
   </motion.div>
@@ -258,7 +258,7 @@ const TimelineJourney = ({ onClose, onNext, events: externalEvents }: TimelineJo
           className="flex flex-col items-center py-10"
         >
           <Heart className="w-6 h-6 text-primary fill-primary mb-2" />
-          <p className="text-foreground/50 font-body text-xs uppercase tracking-widest mb-2">
+          <p className="text-foreground/80 font-body text-xs uppercase tracking-widest mb-2">
             Nossa história começa aqui
           </p>
           <motion.div

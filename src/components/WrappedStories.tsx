@@ -120,7 +120,7 @@ const CoverSlide = ({ coupleNames }: { coupleNames: string }) => (
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="text-primary/70 font-body text-xs uppercase tracking-[0.4em] mb-3"
+      className="text-primary font-body text-xs uppercase tracking-[0.4em] mb-3"
     >
       A história de
     </motion.p>
@@ -140,7 +140,7 @@ const CoverSlide = ({ coupleNames }: { coupleNames: string }) => (
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.0 }}
-      className="text-foreground/50 font-body text-sm max-w-xs leading-relaxed italic"
+      className="text-foreground/80 font-body text-sm max-w-xs leading-relaxed italic"
     >
       "Cada momento juntos é uma página do livro mais bonito que já foi escrito"
     </motion.p>
@@ -183,7 +183,7 @@ const BigNumberSlide = ({ totalDays }: { totalDays: number }) => (
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="text-foreground/60 font-body text-xs uppercase tracking-[0.4em] mb-6"
+      className="text-foreground/90 font-body text-xs uppercase tracking-[0.4em] mb-6"
     >
       Já se passaram
     </motion.p>
@@ -208,7 +208,7 @@ const BigNumberSlide = ({ totalDays }: { totalDays: number }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.9 }}
-      className="text-foreground/80 font-romantic text-3xl sm:text-4xl mt-2"
+      className="text-foreground font-romantic text-3xl sm:text-4xl mt-2"
     >
       dias de amor
     </motion.p>
@@ -219,7 +219,7 @@ const BigNumberSlide = ({ totalDays }: { totalDays: number }) => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.2 }}
-      className="text-foreground/45 font-body text-sm italic max-w-xs leading-relaxed"
+      className="text-foreground/80 font-body text-sm italic max-w-xs leading-relaxed"
     >
       "O amor verdadeiro não se mede em dias, mas os dias ao seu lado são eternos"
     </motion.p>
@@ -285,7 +285,7 @@ const OdometerSlide = ({ totalMinutes }: { totalMinutes: number }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="text-foreground/60 font-body text-xs uppercase tracking-[0.4em] mb-6"
+        className="text-foreground/90 font-body text-xs uppercase tracking-[0.4em] mb-6"
       >
         Minutos juntos
       </motion.p>
@@ -310,7 +310,7 @@ const OdometerSlide = ({ totalMinutes }: { totalMinutes: number }) => {
         className="flex items-center gap-2 mt-5"
       >
         <Heart className="w-3 h-3 text-primary fill-primary" />
-        <p className="text-foreground/50 font-body text-sm italic">
+        <p className="text-foreground/85 font-body text-sm italic">
           e cada minuto foi inesquecível
         </p>
         <Heart className="w-3 h-3 text-primary fill-primary" />
@@ -367,14 +367,14 @@ const FinalStatSlide = ({ totalDays, coupleNames }: { totalDays: number; coupleN
         className="bg-card/40 backdrop-blur-md rounded-3xl p-8 border border-primary/20 max-w-sm"
         style={{ boxShadow: "0 0 40px hsl(var(--primary)/0.12)" }}
       >
-        <p className="text-primary/80 font-body text-xs uppercase tracking-[0.3em] mb-4">
+        <p className="text-primary font-body text-xs uppercase tracking-[0.3em] mb-4">
           O resumo de vocês
         </p>
 
         <p className="text-foreground font-romantic text-4xl sm:text-5xl mb-2 text-gradient-romantic">
           {totalDays.toLocaleString("pt-BR")}
         </p>
-        <p className="text-foreground/70 font-romantic text-xl mb-4">
+        <p className="text-foreground font-romantic text-xl mb-4">
           dias de uma história linda
         </p>
 
@@ -384,7 +384,7 @@ const FinalStatSlide = ({ totalDays, coupleNames }: { totalDays: number; coupleN
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="text-foreground/60 font-body text-sm italic leading-relaxed"
+          className="text-foreground/85 font-body text-sm italic leading-relaxed"
         >
           "Que essa história continue sendo escrita com muito amor, para sempre."
         </motion.p>
@@ -473,7 +473,7 @@ const WrappedStories = ({ coupleNames, coupleDate, onClose }: WrappedStoriesProp
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex flex-col"
-      style={{ background: "radial-gradient(ellipse at 50% 0%, hsl(var(--primary)/0.12) 0%, hsl(var(--background)) 60%)" }}
+      style={{ background: "hsl(var(--background))" }}
     >
       {/* Progress bars */}
       <div className="flex gap-1.5 px-4 pt-4 pb-2 z-10">
@@ -520,7 +520,7 @@ const WrappedStories = ({ coupleNames, coupleDate, onClose }: WrappedStoriesProp
       </div>
 
       {/* Navigation hint */}
-      <div className="flex items-center justify-center gap-3 py-3 text-foreground/25">
+      <div className="flex items-center justify-center gap-3 py-3 text-foreground/60">
         <ChevronLeft className="w-4 h-4" />
         <span className="text-xs font-body uppercase tracking-widest">Toque para navegar</span>
         <ChevronRight className="w-4 h-4" />
