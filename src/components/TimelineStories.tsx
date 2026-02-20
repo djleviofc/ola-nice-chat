@@ -52,7 +52,7 @@ const IntroStory = ({ coupleNames, coupleDate }: { coupleNames: string; coupleDa
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.5 }}
-      className="text-foreground/60 font-body text-sm sm:text-base max-w-xs mb-8 leading-relaxed"
+      className="text-foreground/80 font-body text-sm sm:text-base max-w-xs mb-8 leading-relaxed"
     >
       Seu tempo de casal animado no estilo da retrospectiva do app de músicas. 100% personalizada para esse amor tão especial de vocês dois!
     </motion.p>
@@ -72,7 +72,7 @@ const IntroStory = ({ coupleNames, coupleDate }: { coupleNames: string; coupleDa
       className="mt-8 flex items-center gap-2"
     >
       <Heart className="w-4 h-4 text-primary fill-primary" />
-      <span className="text-xs text-foreground/40 font-body uppercase tracking-widest">
+      <span className="text-xs text-foreground/70 font-body uppercase tracking-widest">
         …e contando cada segundo
       </span>
       <Heart className="w-4 h-4 text-primary fill-primary" />
@@ -222,7 +222,7 @@ const TimelineStories = ({ milestones, coupleNames, coupleDate, onClose }: Timel
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="absolute bottom-8 flex items-center gap-3 text-foreground/30"
+          className="absolute bottom-8 flex items-center gap-3 text-foreground/60"
             >
               <ChevronLeft className="w-4 h-4" />
               <span className="text-xs font-body uppercase tracking-widest">Toque para navegar</span>
