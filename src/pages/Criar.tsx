@@ -240,6 +240,8 @@ const Criar = () => {
     if (!validateStep(step)) return;
     setIsSubmitting(true);
     try {
+      // Generate ID and slug on the frontend to avoid needing to SELECT after INSERT
+      const orderId = crypto.randomUUID();
       const slug = `${coupleData.titulo_pagina.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now().toString(36)}`;
 
       // Upload photos
@@ -260,8 +262,10 @@ const Criar = () => {
         photoIdToUrl[photo.id] = urlData.publicUrl;
       }
 
-      // Insert order (page_active = false until payment)
-      const { data: insertData, error: insertError } = await supabase.from("orders").insert({
+      // Insert order with pre-generated ID (page_active = false until payment)
+      // Do NOT use .select() after insert — SELECT policy only returns page_active=true rows
+      const { error: insertError } = await supabase.from("orders").insert({
+        id: orderId,
         slug,
         nome_cliente: coupleData.nome_cliente.trim(),
         nome_parceiro: coupleData.nome_parceiro.trim(),
@@ -279,11 +283,11 @@ const Criar = () => {
           photo: j.photoId ? photoIdToUrl[j.photoId] : undefined,
         })),
         amount: 1499,
-      } as any).select("id").single();
+      } as any);
 
       if (insertError) throw insertError;
 
-      setSavedOrderId(insertData.id);
+      setSavedOrderId(orderId);
       setSavedSlug(slug);
       setShowCheckout(true);
     } catch (err: any) {
