@@ -67,29 +67,19 @@ const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTrigg
     });
   }, [youtubeId, ytReady]);
 
-  const handlePlay = async () => {
+  const handlePlay = () => {
     if (hasTriggered) return;
 
     if (youtubeId) {
       initYtPlayer();
     } else if (musicUrl) {
-      // MUST create Audio and call play() synchronously within user gesture context for iOS/mobile
+      // Tudo síncrono dentro do gesto do usuário — obrigatório para iOS/mobile
       const audio = new Audio();
       audio.loop = true;
-      audio.preload = "auto";
-
-      // Unlock the audio element immediately (required by iOS Safari)
-      // This must happen BEFORE any async operations
-      try { await audio.play(); } catch (_) { /* expected to fail, just unlocks */ }
-
-      // Now set the actual src — the element is already unlocked
       audio.src = musicUrl;
-
-      // Play again with the real source
-      audio.play().catch((err) => {
-        console.warn("Audio play failed:", err);
-      });
-
+      audio.preload = "auto";
+      // play() imediato desbloqueia o elemento; o catch impede erro visível
+      audio.play().catch(() => {});
       audioRef.current = audio;
     }
 
