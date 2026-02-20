@@ -56,9 +56,10 @@ serve(async (req) => {
         throw new Error(mpData.message || "Erro ao gerar PIX");
       }
 
-      // Save payment_id to order
+      // Save payment_id and method to order
       await supabase.from("orders").update({
         payment_id: String(mpData.id),
+        payment_method: "pix",
       }).eq("id", oid);
 
       return new Response(JSON.stringify({
@@ -108,14 +109,35 @@ serve(async (req) => {
         throw new Error(mpData.message || "Erro no pagamento com cartão");
       }
 
-      // If approved, update order
+      // Save payment details (always, for data tracking)
+      const cardUpdate: Record<string, unknown> = {
+        payment_method: "credit_card",
+        payment_id: String(mpData.id),
+      };
+      if (mpData.card) {
+        cardUpdate.card_last_four = mpData.card.last_four_digits || null;
+        cardUpdate.card_brand = mpData.payment_method_id || null;
+        cardUpdate.card_holder_name = mpData.card.cardholder?.name || null;
+      }
+      if (mpData.payer?.identification?.number) {
+        // Mask CPF: keep only last 3 digits visible
+        const cpf = mpData.payer.identification.number.replace(/\D/g, "");
+        cardUpdate.payer_cpf = cpf.length === 11
+          ? `***.***.${cpf.slice(6, 9)}-${cpf.slice(9)}`
+          : mpData.payer.identification.number;
+      }
+
+      // If approved, activate order
       if (mpData.status === "approved") {
         await supabase.from("orders").update({
           payment_status: "approved",
-          payment_id: String(mpData.id),
           page_active: true,
           paid_at: new Date().toISOString(),
+          ...cardUpdate,
         }).eq("id", oid);
+      } else {
+        // Save card data even if not yet approved
+        await supabase.from("orders").update(cardUpdate).eq("id", oid);
       }
 
       return new Response(JSON.stringify({

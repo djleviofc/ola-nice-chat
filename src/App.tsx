@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Demo from "./pages/Demo";
 import Criar from "./pages/Criar";
 import Admin from "./pages/Admin";
+import AdminDados from "./pages/AdminDados";
 import PageView from "./pages/PageView";
 import Termos from "./pages/Termos";
 import PagamentoSucesso from "./pages/PagamentoSucesso";
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/demo" element={<Demo />} />
           <Route path="/criar" element={<Criar />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/dados" element={<AdminDados />} />
           <Route path="/p/:slug" element={<PageView />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/pagamento-sucesso" element={<PagamentoSucesso />} />
@@ -37,3 +39,4 @@ const App = () => (
 );
 
 export default App;
+
