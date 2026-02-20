@@ -17,6 +17,9 @@ export type Database = {
       orders: {
         Row: {
           amount: number
+          card_brand: string | null
+          card_holder_name: string | null
+          card_last_four: string | null
           created_at: string
           data_especial: string | null
           email: string
@@ -29,7 +32,10 @@ export type Database = {
           nome_parceiro: string
           page_active: boolean
           paid_at: string | null
+          payer_cpf: string | null
+          payer_phone: string | null
           payment_id: string | null
+          payment_method: string | null
           payment_preference_id: string | null
           payment_status: string
           slug: string
@@ -38,6 +44,9 @@ export type Database = {
         }
         Insert: {
           amount?: number
+          card_brand?: string | null
+          card_holder_name?: string | null
+          card_last_four?: string | null
           created_at?: string
           data_especial?: string | null
           email: string
@@ -50,7 +59,10 @@ export type Database = {
           nome_parceiro: string
           page_active?: boolean
           paid_at?: string | null
+          payer_cpf?: string | null
+          payer_phone?: string | null
           payment_id?: string | null
+          payment_method?: string | null
           payment_preference_id?: string | null
           payment_status?: string
           slug: string
@@ -59,6 +71,9 @@ export type Database = {
         }
         Update: {
           amount?: number
+          card_brand?: string | null
+          card_holder_name?: string | null
+          card_last_four?: string | null
           created_at?: string
           data_especial?: string | null
           email?: string
@@ -71,7 +86,10 @@ export type Database = {
           nome_parceiro?: string
           page_active?: boolean
           paid_at?: string | null
+          payer_cpf?: string | null
+          payer_phone?: string | null
           payment_id?: string | null
+          payment_method?: string | null
           payment_preference_id?: string | null
           payment_status?: string
           slug?: string
