@@ -283,9 +283,10 @@ const Criar = () => {
       setSavedOrderId(insertData.id);
       setSavedSlug(slug);
       setShowCheckout(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Submit error:", err);
-      toast({ title: "Erro ao salvar pedido", description: "Tente novamente.", variant: "destructive" });
+      const detail = err?.message || err?.error_description || JSON.stringify(err);
+      toast({ title: "Erro ao salvar pedido", description: detail || "Tente novamente.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
