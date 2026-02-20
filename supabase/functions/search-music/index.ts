@@ -20,27 +20,56 @@ serve(async (req) => {
       });
     }
 
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query.trim())}&media=music&entity=song&limit=15&country=BR`;
+    const YOUTUBE_API_KEY = Deno.env.get("YOUTUBE_API_KEY");
 
-    console.log("Searching iTunes:", url);
+    // Search iTunes for track metadata
+    const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query.trim())}&media=music&entity=song&limit=15&country=BR`;
+    console.log("Searching iTunes:", itunesUrl);
 
-    const res = await fetch(url, {
-      headers: { "Accept": "application/json" },
-    });
+    const itunesRes = await fetch(itunesUrl, { headers: { "Accept": "application/json" } });
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("iTunes error:", res.status, text);
-      return new Response(JSON.stringify({ error: "iTunes API error", status: res.status }), {
+    if (!itunesRes.ok) {
+      const text = await itunesRes.text();
+      console.error("iTunes error:", itunesRes.status, text);
+      return new Response(JSON.stringify({ error: "iTunes API error", status: itunesRes.status }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const data = await res.json();
-    console.log("iTunes resultCount:", data?.resultCount);
+    const itunesData = await itunesRes.json();
+    console.log("iTunes resultCount:", itunesData?.resultCount);
 
-    const results = (data?.results || []).filter((t: Record<string, unknown>) => t.previewUrl);
+    const tracks = (itunesData?.results || []).filter((t: Record<string, unknown>) => t.previewUrl);
+
+    // For each track, search YouTube to get full video ID
+    const results = await Promise.all(
+      tracks.map(async (track: Record<string, unknown>) => {
+        let youtubeVideoId: string | null = null;
+
+        if (YOUTUBE_API_KEY) {
+          try {
+            const searchTerm = `${track.trackName} ${track.artistName} official audio`;
+            const ytUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerm)}&type=video&maxResults=1&key=${YOUTUBE_API_KEY}`;
+            const ytRes = await fetch(ytUrl);
+            if (ytRes.ok) {
+              const ytData = await ytRes.json();
+              youtubeVideoId = ytData?.items?.[0]?.id?.videoId || null;
+              console.log(`YouTube for "${track.trackName}": ${youtubeVideoId}`);
+            } else {
+              console.error("YouTube search error:", ytRes.status, await ytRes.text());
+            }
+          } catch (e) {
+            console.error("YouTube fetch error:", e);
+          }
+        }
+
+        return {
+          ...track,
+          youtubeVideoId,
+        };
+      })
+    );
 
     return new Response(JSON.stringify({ results }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
