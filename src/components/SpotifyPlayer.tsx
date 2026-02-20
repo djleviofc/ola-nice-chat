@@ -65,20 +65,28 @@ const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTrigg
       playerVars: { autoplay: 0, loop: 1, playlist: youtubeId, controls: 0, mute: 0 },
       events: {
         onReady: () => {
-          // Player is ready; actual play will be triggered by user gesture
-          console.log("YouTube player ready");
+          // If user already clicked play before player was ready, trigger now
+          if (pendingPlayRef.current) {
+            pendingPlayRef.current = false;
+            ytPlayerRef.current?.playVideo();
+          }
         },
       },
     });
   }, [youtubeId, ytReady]);
 
+  const pendingPlayRef = useRef(false);
+
   const handlePlay = () => {
     if (hasTriggered) return;
 
     if (youtubeId) {
-      // Player already pre-initialized; call playVideo() synchronously inside gesture
       if (ytPlayerRef.current?.playVideo) {
+        // Player ready — call synchronously inside gesture context
         ytPlayerRef.current.playVideo();
+      } else {
+        // Player not ready yet — set flag so onReady triggers it
+        pendingPlayRef.current = true;
       }
     } else if (musicUrl) {
       // Tudo síncrono dentro do gesto do usuário — obrigatório para iOS/mobile
@@ -104,7 +112,7 @@ const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTrigg
       className="w-full max-w-sm mx-auto"
     >
       {/* Hidden YouTube player */}
-      {youtubeId && <div ref={ytContainerRef} className="hidden" />}
+      {youtubeId && <div ref={ytContainerRef} style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none", overflow: "hidden" }} />}
       <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 border border-border shadow-2xl">
         {/* Album art */}
         <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-5">
