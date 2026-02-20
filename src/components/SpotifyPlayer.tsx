@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, SkipBack, SkipForward, Heart } from "lucide-react";
 import defaultCouplePhoto from "@/assets/couple-photo.jpg";
@@ -54,15 +54,20 @@ const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTrigg
     window.onYouTubeIframeAPIReady = () => setYtReady(true);
   }, [youtubeId]);
 
-  const initYtPlayer = useCallback(() => {
+  // Pre-initialize YouTube player as soon as API is ready (before user tap)
+  // so that playVideo() can be called synchronously inside the gesture handler
+  useEffect(() => {
     if (!youtubeId || !ytReady || !ytContainerRef.current || ytPlayerRef.current) return;
     ytPlayerRef.current = new window.YT.Player(ytContainerRef.current, {
       height: "1",
       width: "1",
       videoId: youtubeId,
-      playerVars: { autoplay: 1, loop: 1, playlist: youtubeId, controls: 0 },
+      playerVars: { autoplay: 0, loop: 1, playlist: youtubeId, controls: 0, mute: 0 },
       events: {
-        onReady: (e: any) => e.target.playVideo(),
+        onReady: () => {
+          // Player is ready; actual play will be triggered by user gesture
+          console.log("YouTube player ready");
+        },
       },
     });
   }, [youtubeId, ytReady]);
@@ -71,14 +76,16 @@ const SpotifyPlayer = ({ songName, artistName, coverPhoto, musicUrl, onPlayTrigg
     if (hasTriggered) return;
 
     if (youtubeId) {
-      initYtPlayer();
+      // Player already pre-initialized; call playVideo() synchronously inside gesture
+      if (ytPlayerRef.current?.playVideo) {
+        ytPlayerRef.current.playVideo();
+      }
     } else if (musicUrl) {
       // Tudo síncrono dentro do gesto do usuário — obrigatório para iOS/mobile
       const audio = new Audio();
       audio.loop = true;
       audio.src = musicUrl;
       audio.preload = "auto";
-      // play() imediato desbloqueia o elemento; o catch impede erro visível
       audio.play().catch(() => {});
       audioRef.current = audio;
     }
